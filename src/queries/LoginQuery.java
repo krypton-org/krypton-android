@@ -2,7 +2,7 @@ package queries;
 
 public class LoginQuery extends Query {
 	
-	public LoginQuery() {
+	public getQuery() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("mutation login($login: String!, $password: String!) {\n")
 		  .append("login(login: $login, password: $password) {\n")
