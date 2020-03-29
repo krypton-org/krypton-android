@@ -1,10 +1,12 @@
 package queries;
 
-public class Query {
-	protected String query;
+public abstract class Query {
 	
-	public Query() {
-		this.query="";
+	protected Map<String, Object> variables;
+	
+	public Query(Map<String, Object> variables) {
+		this.variables = variables;
 	}
 	
+	abstract protected String getQuery();
 }
