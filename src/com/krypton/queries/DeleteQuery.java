@@ -1,7 +1,14 @@
-package queries;
+package com.krypton.queries;
+
+import java.util.HashMap;
 
 public class DeleteQuery extends Query {
-	public DeleteQuery() {
+	
+	public DeleteQuery(HashMap<String, Object> variables) {
+		super(variables);
+		this.getQuery();
+	}
+	public void getQuery() {	
 		StringBuilder sb = new StringBuilder();
 		sb.append("mutation deleteMe($password: String!) {\n")
 		  .append("deleteMe(password: $password)\n")
