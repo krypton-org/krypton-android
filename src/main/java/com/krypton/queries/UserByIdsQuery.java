@@ -1,4 +1,4 @@
-package main.java.com.krypton.queries;
+package com.krypton.queries;
 
 public class UserByIdsQuery {
 

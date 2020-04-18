@@ -1,4 +1,4 @@
-package main.java.com.krypton.queries;
+package com.krypton.queries;
 import java.util.HashMap;
 
 public class LoginQuery extends Query {
@@ -10,7 +10,8 @@ public class LoginQuery extends Query {
 		StringBuilder sb = new StringBuilder();
 		sb.append("mutation login($email: String!, $password: String!) {")
 		  .append("login(email: $email, password: $password) {")
-		  .append("token")
+		  .append("token\n")
+		  .append("expiryDate")
 		  .append("}}");
 		this.query = sb.toString();
 	}

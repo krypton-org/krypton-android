@@ -1,4 +1,4 @@
-package main.java.com.krypton.queries;
+package com.krypton.queries;
 import java.util.HashMap;
 
 public class UpdateQuery extends Query {

@@ -1,11 +1,7 @@
-package test.com.krypton.client;
-import static org.junit.Assert.fail;
+package com.krypton;
 
-import java.io.IOException;
-
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
-
-import main.java.com.krypton.client.KryptonClient;
 
 public class KryptonClientTest {
 	@Test
@@ -13,12 +9,12 @@ public class KryptonClientTest {
 		KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
 		try {
 			client.register("toto@toto.com", "totototo");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			fail();
 		}
 		try {
 			client.login("toto@toto.com", "totototo");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			fail();
 		}
 	}

@@ -1,4 +1,4 @@
-package main.java.com.krypton.exceptions;
+package com.krypton.exceptions;
 
 public class UnauthorizedError extends KryptonException {
 

@@ -1,4 +1,4 @@
-package main.java.com.krypton.client;
+package com.krypton.utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 public class UserToken {
