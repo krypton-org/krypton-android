@@ -1,3 +1,9 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
 # Maven related
 target/
 pom.xml.tag
@@ -11,6 +17,7 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 .flattened-pom.xml
 .settings
+*.iml
 
 # Java related
 *.jar
@@ -33,6 +40,9 @@ local.properties
 .classpath
 .settings/
 .loadpath
+
+# IDEA
+.idea/*
 
 # External tool builders
 .externalToolBuilders/
