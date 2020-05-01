@@ -6,41 +6,36 @@ package com.krypton.core;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterAll;
+
 public class EmailAvailableTest {
+	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
+	static String email = "emailavailable@example.com";
+	static String password = "ex@mplePassword123";
+
 	@Test
-	public void test1() {
-        KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
-        String email = "testregqqsdissdqsdqsdter@exampqsdle.com";
-        String password = "ex@mplePassword123";
-        try {
-            boolean isAvailable = client.isEmailAvailable(email);
-            assertTrue(isAvailable);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        try {
-            boolean isRegistered = client.register(email, password);
-            assertTrue(isRegistered);
-            boolean isAvailable = client.isEmailAvailable(email);
-            assertFalse(isAvailable);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        try {
-            client.login(email, password);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        try {
-        	client.delete(password);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
+	public void testEmailAvailable() {
+		try {
+			boolean isAvailable = client.isEmailAvailable(email);
+			assertTrue(isAvailable);
+			boolean isRegistered = client.register(email, password);
+			assertTrue(isRegistered);
+			isAvailable = client.isEmailAvailable(email);
+			assertFalse(isAvailable);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
+
+	@AfterAll
+	public static void cleanUp() {
+		try {
+			client.login(email, password);
+			client.delete(password);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+	}
+
 }
-
-

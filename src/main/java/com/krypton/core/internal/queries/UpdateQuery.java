@@ -10,7 +10,7 @@ public class UpdateQuery extends Query {
 		StringBuilder sb = new StringBuilder();
 		sb.append("mutation updateMe($fields: UserUpdateInput!) {")
 		  .append("updateMe(fields: $fields) {")
-		  .append("token")
+		  .append("token expiryDate")
 		  .append("}}");
 		this.query = sb.toString();
 	}

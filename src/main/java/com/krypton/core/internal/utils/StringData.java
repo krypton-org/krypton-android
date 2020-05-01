@@ -11,9 +11,9 @@ public class StringData implements QueryData {
 	public Map<String, String> data;
 	public List<Map<String, String>> errors;
 
-	public Map<String, 	String > getData(){
-			return data;
-		}
+	public Map<String, String> getData() {
+		return data;
+	}
 
 	public List<Map<String, String>> getErrors() {
 		return errors;

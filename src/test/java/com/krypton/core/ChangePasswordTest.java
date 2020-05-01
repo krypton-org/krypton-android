@@ -4,46 +4,51 @@ package com.krypton.core;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+
 public class ChangePasswordTest {
-    @Test
-    public void test1() {
-        KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
-        String email = "changePassword@example.com";
-        String password = "ex@mplePassword123";
-        String newPassword = "0therPassword123";
-        
-        try {
-            boolean isRegistered = client.register(email, password);
-            assertTrue(isRegistered);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        try {
-            client.login(email, password);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        
-        try {
-            client.changePassword(password, newPassword);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        try {
-            client.login(email, newPassword);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        
-        try {
-        	client.delete(password);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-    }
+	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
+	static String email = "changePassword@example.com";
+	static String password = "ex@mplePassword123";
+	static String newPassword = "0therPassword123";
+
+	@BeforeAll
+	public static void setUp() {
+		try {
+			client.register(email, password);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	@Test
+	public void testChangePassword() {
+
+		try {
+			client.login(email, password);
+			assertTrue(client.isLoggedIn());
+			assertTrue(client.changePassword(password, newPassword));
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	@AfterAll
+	public static void cleanUp() {
+		try {
+			client.login(email, password);
+			client.delete(password);
+		} catch (Exception e) {
+			;
+		}
+		try {
+			client.login(email, newPassword);
+			client.delete(newPassword);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+	}
 }

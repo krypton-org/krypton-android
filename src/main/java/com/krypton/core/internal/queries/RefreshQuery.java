@@ -13,7 +13,7 @@ public class RefreshQuery extends Query {
 		this.getQuery();
 	}
 	public void getQuery() {
-		this.query="mutation { refreshToken { token } }";
+		this.query="mutation { refreshToken { token expiryDate } }";
 	}
 
 }

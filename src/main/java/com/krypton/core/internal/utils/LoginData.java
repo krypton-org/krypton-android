@@ -6,6 +6,7 @@ import java.util.Map;
 public class LoginData implements AuthData, QueryData {
 	public Map<String, Map<String, Object>> data;
 	public List<Map<String, String>> errors;
+
 	@Override
 	public Map<String, Map<String, Object>> getData() {
 		return this.data;

@@ -10,11 +10,6 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -45,13 +40,18 @@ import com.krypton.core.internal.queries.RegisterQuery;
 import com.krypton.core.internal.queries.SendPasswordRecoveryQuery;
 import com.krypton.core.internal.queries.SendVerificationEmailQuery;
 import com.krypton.core.internal.queries.UpdateQuery;
-import com.krypton.core.internal.utils.StringData;
-import com.krypton.core.internal.utils.UpdateData;
+import com.krypton.core.internal.queries.UserOneQuery;
 import com.krypton.core.internal.utils.AuthData;
-import com.krypton.core.internal.utils.BooleanData;
+import com.krypton.core.internal.utils.DeleteData;
+import com.krypton.core.internal.utils.EmailAvailableData;
 import com.krypton.core.internal.utils.LoginData;
 import com.krypton.core.internal.utils.QueryData;
 import com.krypton.core.internal.utils.RefreshData;
+import com.krypton.core.internal.utils.RegisterData;
+import com.krypton.core.internal.utils.SendPasswordRecoveryData;
+import com.krypton.core.internal.utils.SendVerificationEmailData;
+import com.krypton.core.internal.utils.StringData;
+import com.krypton.core.internal.utils.UpdateData;
 
 public class KryptonClient {
 	private String endpoint;
@@ -59,12 +59,15 @@ public class KryptonClient {
 	private String token;
 	private Map<String, Object> user;
 	private static final String COOKIES_HEADER = "Set-Cookie";
-	private CookieManager cookieManager = new CookieManager();
+	private CookieManager cookieManager;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 	public KryptonClient(String endpoint) {
 		this.endpoint = endpoint;
 		this.token = "";
+		this.user = Collections.emptyMap();
+		this.expiryDate = new Date(0);
+		this.cookieManager = new CookieManager();
 	}
 
 	public Object getUser() {
@@ -99,9 +102,7 @@ public class KryptonClient {
 
 	}
 
-
-	public Map<String, ?> query(Query q, boolean isAuthTokenRequired, boolean isRefreshed)
-			throws Exception {
+	public Map<String, ?> query(Query q, boolean isAuthTokenRequired, boolean isRefreshed) throws Exception {
 		URL url = new URL(endpoint);
 		HttpURLConnection req = (HttpURLConnection) url.openConnection();
 		req.setRequestMethod("POST");
@@ -126,26 +127,12 @@ public class KryptonClient {
 			while ((responseLine = br.readLine()) != null) {
 				response.append(responseLine.trim());
 			}
-			if (q instanceof RefreshQuery) {
-				res = new Gson().fromJson(response.toString(), RefreshData.class);
-			}
-			else if (q instanceof LoginQuery) {
-				res = new Gson().fromJson(response.toString(), LoginData.class);
-			}
-			else if (q instanceof UpdateQuery) {
-				res = new Gson().fromJson(response.toString(), UpdateData.class);
-			}
-			else if (q instanceof DeleteQuery || q instanceof RegisterQuery || q instanceof SendPasswordRecoveryQuery || q instanceof EmailAvailableQuery || q instanceof SendVerificationEmailQuery ) {
-				res = new Gson().fromJson(response.toString(), BooleanData.class);
-			}
-			else {
-				res = new Gson().fromJson(response.toString(), StringData.class);
-			}
-			
+			res = convertData(q, response);
+
 		} catch (Exception err) {
 			System.out.println(err);
 		}
-		
+
 		if (res.getErrors() != null && res.getErrors().size() > 0) {
 			String errorType = res.getErrors().get(0).get("type");
 			String message = res.getErrors().get(0).get("message");
@@ -158,7 +145,7 @@ public class KryptonClient {
 		}
 		if (res instanceof AuthData) {
 			this.token = ((AuthData) res).getToken();
-			String expiryDatesrt= ((AuthData) res).getExpiryDate();
+			String expiryDatesrt = ((AuthData) res).getExpiryDate();
 			this.expiryDate = DATE_FORMAT.parse(expiryDatesrt);
 			this.saveCookies(req);
 			this.decodeToken(token);
@@ -167,6 +154,37 @@ public class KryptonClient {
 		return res.getData();
 	}
 
+	private QueryData convertData(Query q, StringBuilder response) {
+		QueryData res;
+		if (q instanceof RefreshQuery) {
+			res = new Gson().fromJson(response.toString(), RefreshData.class);
+
+		} else if (q instanceof LoginQuery) {
+			res = new Gson().fromJson(response.toString(), LoginData.class);
+
+		} else if (q instanceof UpdateQuery) {
+			res = new Gson().fromJson(response.toString(), UpdateData.class);
+
+		} else if (q instanceof DeleteQuery) {
+			res = new Gson().fromJson(response.toString(), DeleteData.class);
+
+		} else if (q instanceof EmailAvailableQuery) {
+			res = new Gson().fromJson(response.toString(), EmailAvailableData.class);
+
+		} else if (q instanceof RegisterQuery) {
+			res = new Gson().fromJson(response.toString(), RegisterData.class);
+
+		} else if (q instanceof SendPasswordRecoveryQuery) {
+			res = new Gson().fromJson(response.toString(), SendPasswordRecoveryData.class);
+
+		} else if (q instanceof SendVerificationEmailQuery) {
+			res = new Gson().fromJson(response.toString(), SendVerificationEmailData.class);
+
+		} else {
+			res = new Gson().fromJson(response.toString(), StringData.class);
+		}
+		return res;
+	}
 
 	private KryptonException errorStringToException(String errorType, String message) {
 		switch (errorType) {
@@ -194,9 +212,8 @@ public class KryptonClient {
 			return new WrongPasswordException(message);
 		default:
 			return new KryptonException(message);
-		}	
+		}
 	}
-
 
 	private void addCookies(HttpURLConnection req) {
 		StringBuilder sb = new StringBuilder();
@@ -215,21 +232,21 @@ public class KryptonClient {
 	public void refreshToken() throws Exception {
 		this.query(new RefreshQuery(), false, true);
 	}
-	
-	public boolean isLoggedIn () throws ParseException {
-		System.out.println(this.expiryDate.getTime());
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-	    String utcTime = sdf.format(new Date().getTime());
-	    System.out.println(utcTime);
-		if (this.token != null && this.expiryDate != null ) {
-			return true;
+
+	public boolean isLoggedIn() throws ParseException {
+		if (this.expiryDate == null) {
+			return false;
 		}
-		else {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		SimpleDateFormat localDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		Date currentDate = localDateFormat.parse(simpleDateFormat.format(new Date()));
+		if (this.token != null && this.expiryDate != null && this.expiryDate.getTime() > currentDate.getTime()) {
+			return true;
+		} else {
 			try {
 				this.refreshToken();
-			}
-			catch (Exception err) {
+			} catch (Exception err) {
 				return false;
 			}
 			return true;
@@ -262,9 +279,8 @@ public class KryptonClient {
 		return this.user;
 	}
 
-	public Map<String, Object> update(Map<String, Object> otherFields) throws Exception {
+	public Map<String, Object> update(Map<String, Object> fields) throws Exception {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
-		HashMap<String, Object> fields = new HashMap<String, Object>(otherFields);
 		parameters.put("fields", fields);
 		this.query(new UpdateQuery(parameters), true, false);
 		return this.user;
@@ -274,6 +290,10 @@ public class KryptonClient {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("password", password);
 		Map<String, ?> res = this.query(new DeleteQuery(parameters), true, false);
+		this.token = "";
+		this.user = Collections.emptyMap();
+		this.expiryDate = new Date(0);
+		this.cookieManager = new CookieManager();
 		return (boolean) res.get("deleteMe");
 	}
 
@@ -287,17 +307,16 @@ public class KryptonClient {
 	public boolean isEmailAvailable(String email) throws Exception {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("email", email);
-		Map<String, ?> res =this.query(new EmailAvailableQuery(parameters), false, false);
+		Map<String, ?> res = this.query(new EmailAvailableQuery(parameters), false, false);
 		return (boolean) res.get("emailAvailable");
 	}
 
-	public void changePassword(String password, String previousPassword) throws Exception {
-		HashMap<String, Object> parameters = new HashMap<String, Object>();
+	public boolean changePassword(String actualPassword, String newPassword) throws Exception {
 		HashMap<String, Object> fields = new HashMap<String, Object>();
-		fields.put("password", password);
-		fields.put("PreviousPassword", previousPassword);
-		parameters.put("fields", fields);
-		this.query(new UpdateQuery(parameters), true, false);
+		fields.put("password", newPassword);
+		fields.put("previousPassword", actualPassword);
+		this.update(fields);
+		return true;
 	}
 
 	public boolean sendVerificationEmail() throws Exception {
@@ -305,9 +324,9 @@ public class KryptonClient {
 		return (boolean) res.get("sendVerificationEmail");
 	}
 
-//	 public void fetchUserOne() throws Exception {
-//	 this.query(new UserOneQuery(parameters),true,false);
-//	 }
+	public void fetchUserOne(HashMap<String, Object> filter, List<String> requestedFields) throws Exception {
+		this.query(new UserOneQuery(filter, requestedFields), true, false);
+	}
 //	
 //	 public void fetchUserByIds(String email) throws Exception {
 //	 this.query(new UserByIdsQuery(parameters),true,false);
@@ -328,7 +347,6 @@ public class KryptonClient {
 //	 public void publicKey() throws Exception {
 //	 this.query(new PublicKeyQuery(),true,false);
 //	 }
-	
 
 	private void decodeToken(String token) {
 		byte[] decodedBytes = Base64.getDecoder().decode(token.split("[.]")[1]);

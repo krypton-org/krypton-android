@@ -6,31 +6,33 @@ package com.krypton.core;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterAll;
+
 public class RegisterTest {
-    @Test
-    public void test1() {
-        KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
-        String email = "testregqqsdissdqsdqsdter@exampqsdle.com";
-        String password = "ex@mplePassword123";
-        
-        try {
-            boolean isRegistered = client.register(email, password);
-            assertTrue(isRegistered);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        try {
-            client.login(email, password);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-        try {
-        	client.delete(password);
-        } catch (Exception e) {
-        	System.out.println(e);
-            fail(e);
-        }
-    }
+	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
+	static String email = "register.test@example.com";
+	static String password = "ex@mplePassword123";
+
+	@Test
+	public void testRegister() {
+
+		try {
+			boolean isRegistered = client.register(email, password);
+			assertTrue(isRegistered);
+		} catch (Exception e) {
+			System.out.println(e);
+			fail(e);
+		}
+	}
+
+	@AfterAll
+	public static void cleanUp() {
+		try {
+			client.login(email, password);
+			client.delete(password);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+	}
 }
