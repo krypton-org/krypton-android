@@ -1,6 +1,12 @@
-# Krypton Java Client
+<p align="center">
+    <img src="https://github.com/krypton-org/krypton-android/raw/master/img/logo-krypton-android.png" width="150px"/>
+    </p>
+    <p align="center">
+    <i>Krypton client for Android and the JVM.</i>
+    <br/><br/>
+</p>
 
-This repository is the core client library used to connect to [Krypton Authentification server](https://github.com/krypton-org/krypton-auth).
+Krypton Android is the core client library used to connect to [Krypton Authentification server](https://github.com/krypton-org/krypton-auth).
 It is based on the [Krypton client specification](https://github.com/krypton-org/krypton-drafts/tree/master/client).
 
 ## Getting started
