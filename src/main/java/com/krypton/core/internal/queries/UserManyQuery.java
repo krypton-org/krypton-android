@@ -1,10 +1,9 @@
 package com.krypton.core.internal.queries;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class UserManyQuery extends QueryWithRequestedFields{
-	public UserManyQuery(HashMap<String, Object> variables, List<String> requestedFields) {
+	public UserManyQuery(HashMap<String, Object> variables, String[] requestedFields) {
 		super(variables, requestedFields);
 		this.getQuery();
 	}

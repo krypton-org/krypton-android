@@ -1,15 +1,14 @@
 package com.krypton.core.internal.queries;
 
 import java.util.HashMap;
-import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public abstract class QueryWithRequestedFields extends Query {
-	protected List<String> requestedFields;
+	protected String[] requestedFields;
 	
-	public QueryWithRequestedFields (HashMap<String, Object> variables, List<String> requestedFields) {
+	public QueryWithRequestedFields (HashMap<String, Object> variables, String[] requestedFields) {
 		super(variables);
 		this.requestedFields=requestedFields;
 	}

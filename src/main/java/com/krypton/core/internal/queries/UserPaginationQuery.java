@@ -1,10 +1,9 @@
 package com.krypton.core.internal.queries;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class UserPaginationQuery extends QueryWithRequestedFields{
-	public UserPaginationQuery(HashMap<String, Object> variables, List<String> requestedFields) {
+	public UserPaginationQuery(HashMap<String, Object> variables, String[] requestedFields) {
 		super(variables, requestedFields);
 		this.getQuery();
 	}

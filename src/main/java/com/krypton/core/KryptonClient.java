@@ -34,17 +34,21 @@ import com.krypton.core.internal.exceptions.WrongPasswordException;
 import com.krypton.core.internal.queries.DeleteQuery;
 import com.krypton.core.internal.queries.EmailAvailableQuery;
 import com.krypton.core.internal.queries.LoginQuery;
+import com.krypton.core.internal.queries.PublicKeyQuery;
 import com.krypton.core.internal.queries.Query;
 import com.krypton.core.internal.queries.RefreshQuery;
 import com.krypton.core.internal.queries.RegisterQuery;
 import com.krypton.core.internal.queries.SendPasswordRecoveryQuery;
 import com.krypton.core.internal.queries.SendVerificationEmailQuery;
 import com.krypton.core.internal.queries.UpdateQuery;
+import com.krypton.core.internal.queries.UserByIdsQuery;
+import com.krypton.core.internal.queries.UserManyQuery;
 import com.krypton.core.internal.queries.UserOneQuery;
 import com.krypton.core.internal.utils.AuthData;
 import com.krypton.core.internal.utils.DeleteData;
 import com.krypton.core.internal.utils.EmailAvailableData;
 import com.krypton.core.internal.utils.LoginData;
+import com.krypton.core.internal.utils.PublicKeyData;
 import com.krypton.core.internal.utils.QueryData;
 import com.krypton.core.internal.utils.RefreshData;
 import com.krypton.core.internal.utils.RegisterData;
@@ -52,6 +56,8 @@ import com.krypton.core.internal.utils.SendPasswordRecoveryData;
 import com.krypton.core.internal.utils.SendVerificationEmailData;
 import com.krypton.core.internal.utils.StringData;
 import com.krypton.core.internal.utils.UpdateData;
+import com.krypton.core.internal.utils.UserManyData;
+import com.krypton.core.internal.utils.UserOneData;
 
 public class KryptonClient {
 	private String endpoint;
@@ -61,6 +67,7 @@ public class KryptonClient {
 	private static final String COOKIES_HEADER = "Set-Cookie";
 	private CookieManager cookieManager;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	private static final int DELTA_TIME = 120000;
 
 	public KryptonClient(String endpoint) {
 		this.endpoint = endpoint;
@@ -74,7 +81,15 @@ public class KryptonClient {
 		return this.user;
 	}
 
-	public String getToken() {
+	public String getToken() throws Exception {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		SimpleDateFormat localDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		Date currentDate = localDateFormat.parse(simpleDateFormat.format(new Date()));
+		if (this.token != null && this.expiryDate != null
+				&& this.expiryDate.getTime() < currentDate.getTime() + DELTA_TIME) {
+			this.refreshToken();
+		}
 		return this.token;
 	}
 
@@ -82,8 +97,8 @@ public class KryptonClient {
 		return this.expiryDate;
 	}
 
-	public String getAuthorizationHeader() {
-		return "Bearer " + this.token;
+	public String getAuthorizationHeader() throws Exception {
+		return "Bearer " + this.getToken();
 	}
 
 	public Map<String, ?> query(Query q, boolean isAuthTokenRequired) throws Exception {
@@ -179,6 +194,15 @@ public class KryptonClient {
 
 		} else if (q instanceof SendVerificationEmailQuery) {
 			res = new Gson().fromJson(response.toString(), SendVerificationEmailData.class);
+
+		} else if (q instanceof UserOneQuery) {
+			res = new Gson().fromJson(response.toString(), UserOneData.class);
+
+		} else if (q instanceof UserManyQuery) {
+			res = new Gson().fromJson(response.toString(), UserManyData.class);
+
+		} else if (q instanceof PublicKeyQuery) {
+			res = new Gson().fromJson(response.toString(), PublicKeyData.class);
 
 		} else {
 			res = new Gson().fromJson(response.toString(), StringData.class);
@@ -324,18 +348,34 @@ public class KryptonClient {
 		return (boolean) res.get("sendVerificationEmail");
 	}
 
-	public void fetchUserOne(HashMap<String, Object> filter, List<String> requestedFields) throws Exception {
-		this.query(new UserOneQuery(filter, requestedFields), true, false);
+	public Map<String, Object> fetchUserOne(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		Map<String, ?> res = this.query(new UserOneQuery(parameter, requestedFields), false, false);
+		return (Map<String, Object>) res.get("userOne");
 	}
-//	
-//	 public void fetchUserByIds(String email) throws Exception {
-//	 this.query(new UserByIdsQuery(parameters),true,false);
-//	 }
-//	
-//	 public void fetchUserMany(String email) throws Exception {
-//	 this.query(new UserManyQuery(parameters),true,false);
-//	 }
-//	
+
+	public void fetchUserByIds(String[] ids, String[] requestedFields) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("ids", ids);
+		this.query(new UserByIdsQuery(parameter, requestedFields), false, false);
+	}
+
+	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields, int limit) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		parameter.put("limit", limit);
+		Map<String, ?> res = this.query(new UserManyQuery(parameter, requestedFields), false, false);
+		return (Map[]) res.get("userMany");
+	}
+	
+	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		Map<String, ?> res = this.query(new UserManyQuery(parameter, requestedFields), false, false);
+		return (Map[]) res.get("userMany");
+	}
+
 //	 public void fetchUserCount(String email) throws Exception {
 //	 this.query(new UserCountQuery(parameters),true,false);
 //	 }
@@ -344,9 +384,10 @@ public class KryptonClient {
 //	 this.query(new UserPaginationQuery(parameters),false,false);
 //	 }
 //	
-//	 public void publicKey() throws Exception {
-//	 this.query(new PublicKeyQuery(),true,false);
-//	 }
+	 public String publicKey() throws Exception {
+	 Map<String, ?> res = this.query(new PublicKeyQuery(),false,false);
+	 return (String) res.get("publicKey");
+	 }
 
 	private void decodeToken(String token) {
 		byte[] decodedBytes = Base64.getDecoder().decode(token.split("[.]")[1]);
