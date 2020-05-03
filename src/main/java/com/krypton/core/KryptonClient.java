@@ -17,6 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.google.gson.Gson;
 import com.krypton.core.internal.exceptions.AlreadyLoggedInException;
@@ -61,7 +65,7 @@ public class KryptonClient {
 	private static final String COOKIES_HEADER = "Set-Cookie";
 	private CookieManager cookieManager;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
+	private ExecutorService executor = Executors.newWorkStealingPool();
 	public KryptonClient(String endpoint) {
 		this.endpoint = endpoint;
 		this.token = "";
@@ -128,9 +132,6 @@ public class KryptonClient {
 				response.append(responseLine.trim());
 			}
 			res = convertData(q, response);
-
-		} catch (Exception err) {
-			System.out.println(err);
 		}
 
 		if (res.getErrors() != null && res.getErrors().size() > 0) {
@@ -188,30 +189,30 @@ public class KryptonClient {
 
 	private KryptonException errorStringToException(String errorType, String message) {
 		switch (errorType) {
-		case "AlreadyLoggedInError":
-			return new AlreadyLoggedInException(message);
-		case "EmailAlreadyConfirmedError":
-			return new EmailAlreadyConfirmedException(message);
-		case "EmailAlreadyExistsError":
-			return new EmailAlreadyExistsException(message);
-		case "EmailNotSentError":
-			return new EmailNotSentException(message);
-		case "GraphQLError":
-			return new GraphQLException(message);
-		case "UpdatePasswordTooLateError":
-			return new UpdatePasswordTooLateException(message);
-		case "UsernameAlreadyExistsError":
-			return new UsernameAlreadyExistsException(message);
-		case "UnauthorizedError":
-			return new UnauthorizedException(message);
-		case "UserNotFoundError":
-			return new UserNotFoundException(message);
-		case "UserValidationError":
-			return new UserValidationException(message);
-		case "WrongPasswordError":
-			return new WrongPasswordException(message);
-		default:
-			return new KryptonException(message);
+			case "AlreadyLoggedInError":
+				return new AlreadyLoggedInException(message);
+			case "EmailAlreadyConfirmedError":
+				return new EmailAlreadyConfirmedException(message);
+			case "EmailAlreadyExistsError":
+				return new EmailAlreadyExistsException(message);
+			case "EmailNotSentError":
+				return new EmailNotSentException(message);
+			case "GraphQLError":
+				return new GraphQLException(message);
+			case "UpdatePasswordTooLateError":
+				return new UpdatePasswordTooLateException(message);
+			case "UsernameAlreadyExistsError":
+				return new UsernameAlreadyExistsException(message);
+			case "UnauthorizedError":
+				return new UnauthorizedException(message);
+			case "UserNotFoundError":
+				return new UserNotFoundException(message);
+			case "UserValidationError":
+				return new UserValidationException(message);
+			case "WrongPasswordError":
+				return new WrongPasswordException(message);
+			default:
+				return new KryptonException(message);
 		}
 	}
 
@@ -229,8 +230,12 @@ public class KryptonClient {
 		req.setRequestProperty("Cookie", sb.toString());
 	}
 
-	public void refreshToken() throws Exception {
-		this.query(new RefreshQuery(), false, true);
+	public Future<Void> refreshToken() throws Exception {
+		Callable<Void> callable = () -> {
+			this.query(new RefreshQuery(), false, true);
+			return null;
+        };
+		return executor.submit(callable);
 	}
 
 	public boolean isLoggedIn() throws ParseException {
@@ -245,7 +250,7 @@ public class KryptonClient {
 			return true;
 		} else {
 			try {
-				this.refreshToken();
+				this.refreshToken().get();
 			} catch (Exception err) {
 				return false;
 			}
@@ -327,26 +332,26 @@ public class KryptonClient {
 	public void fetchUserOne(HashMap<String, Object> filter, List<String> requestedFields) throws Exception {
 		this.query(new UserOneQuery(filter, requestedFields), true, false);
 	}
-//	
-//	 public void fetchUserByIds(String email) throws Exception {
-//	 this.query(new UserByIdsQuery(parameters),true,false);
-//	 }
-//	
-//	 public void fetchUserMany(String email) throws Exception {
-//	 this.query(new UserManyQuery(parameters),true,false);
-//	 }
-//	
-//	 public void fetchUserCount(String email) throws Exception {
-//	 this.query(new UserCountQuery(parameters),true,false);
-//	 }
-//	
-//	 public void fetchUserWithPagination(String email) throws Exception {
-//	 this.query(new UserPaginationQuery(parameters),false,false);
-//	 }
-//	
-//	 public void publicKey() throws Exception {
-//	 this.query(new PublicKeyQuery(),true,false);
-//	 }
+	//
+	// public void fetchUserByIds(String email) throws Exception {
+	// this.query(new UserByIdsQuery(parameters),true,false);
+	// }
+	//
+	// public void fetchUserMany(String email) throws Exception {
+	// this.query(new UserManyQuery(parameters),true,false);
+	// }
+	//
+	// public void fetchUserCount(String email) throws Exception {
+	// this.query(new UserCountQuery(parameters),true,false);
+	// }
+	//
+	// public void fetchUserWithPagination(String email) throws Exception {
+	// this.query(new UserPaginationQuery(parameters),false,false);
+	// }
+	//
+	// public void publicKey() throws Exception {
+	// this.query(new PublicKeyQuery(),true,false);
+	// }
 
 	private void decodeToken(String token) {
 		byte[] decodedBytes = Base64.getDecoder().decode(token.split("[.]")[1]);
