@@ -6,6 +6,7 @@ import java.util.Map;
 public class UserManyData implements QueryData {
 	public Map<String, Map[]> data;
 	public List<Map<String, String>> errors;
+
 	@Override
 	public Map<String, Map[]> getData() {
 		return this.data;

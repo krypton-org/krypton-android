@@ -10,6 +10,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -42,8 +43,10 @@ import com.krypton.core.internal.queries.SendPasswordRecoveryQuery;
 import com.krypton.core.internal.queries.SendVerificationEmailQuery;
 import com.krypton.core.internal.queries.UpdateQuery;
 import com.krypton.core.internal.queries.UserByIdsQuery;
+import com.krypton.core.internal.queries.UserCountQuery;
 import com.krypton.core.internal.queries.UserManyQuery;
 import com.krypton.core.internal.queries.UserOneQuery;
+import com.krypton.core.internal.queries.UserPaginationQuery;
 import com.krypton.core.internal.utils.AuthData;
 import com.krypton.core.internal.utils.DeleteData;
 import com.krypton.core.internal.utils.EmailAvailableData;
@@ -56,8 +59,10 @@ import com.krypton.core.internal.utils.SendPasswordRecoveryData;
 import com.krypton.core.internal.utils.SendVerificationEmailData;
 import com.krypton.core.internal.utils.StringData;
 import com.krypton.core.internal.utils.UpdateData;
+import com.krypton.core.internal.utils.UserCountData;
 import com.krypton.core.internal.utils.UserManyData;
 import com.krypton.core.internal.utils.UserOneData;
+import com.krypton.core.internal.utils.UserPaginationData;
 
 public class KryptonClient {
 	private String endpoint;
@@ -203,6 +208,12 @@ public class KryptonClient {
 
 		} else if (q instanceof PublicKeyQuery) {
 			res = new Gson().fromJson(response.toString(), PublicKeyData.class);
+
+		} else if (q instanceof UserCountQuery) {
+			res = new Gson().fromJson(response.toString(), UserCountData.class);
+
+		} else if (q instanceof UserPaginationQuery) {
+			res = new Gson().fromJson(response.toString(), UserPaginationData.class);
 
 		} else {
 			res = new Gson().fromJson(response.toString(), StringData.class);
@@ -355,9 +366,9 @@ public class KryptonClient {
 		return (Map<String, Object>) res.get("userOne");
 	}
 
-	public void fetchUserByIds(String[] ids, String[] requestedFields) throws Exception {
+	public void fetchUserByIds(ArrayList<String> data, String[] requestedFields) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("ids", ids);
+		parameter.put("ids", data);
 		this.query(new UserByIdsQuery(parameter, requestedFields), false, false);
 	}
 
@@ -368,7 +379,7 @@ public class KryptonClient {
 		Map<String, ?> res = this.query(new UserManyQuery(parameter, requestedFields), false, false);
 		return (Map[]) res.get("userMany");
 	}
-	
+
 	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
@@ -376,18 +387,30 @@ public class KryptonClient {
 		return (Map[]) res.get("userMany");
 	}
 
-//	 public void fetchUserCount(String email) throws Exception {
-//	 this.query(new UserCountQuery(parameters),true,false);
-//	 }
-//	
-//	 public void fetchUserWithPagination(String email) throws Exception {
-//	 this.query(new UserPaginationQuery(parameters),false,false);
-//	 }
-//	
-	 public String publicKey() throws Exception {
-	 Map<String, ?> res = this.query(new PublicKeyQuery(),false,false);
-	 return (String) res.get("publicKey");
-	 }
+	public int fetchUserCount(HashMap<String, Object> filter) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		return (int) this.query(new UserCountQuery(parameter), false, false).get("userCount");
+	}
+
+	public int fetchUserCount() throws Exception {
+		return (int) this.query(new UserCountQuery(), false, false).get("userCount");
+	}
+
+	public Map<String, Object> fetchUserWithPagination(HashMap<String, Object> filter, String[] requestedFields,
+			int page, int perPage) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		parameter.put("page", page);
+		parameter.put("perPage", perPage);
+		return (Map<String, Object>) this.query(new UserPaginationQuery(parameter, requestedFields), false, false)
+				.get("userPagination");
+	}
+
+	public String publicKey() throws Exception {
+		Map<String, ?> res = this.query(new PublicKeyQuery(), false, false);
+		return (String) res.get("publicKey");
+	}
 
 	private void decodeToken(String token) {
 		byte[] decodedBytes = Base64.getDecoder().decode(token.split("[.]")[1]);

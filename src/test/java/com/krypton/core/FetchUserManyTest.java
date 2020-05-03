@@ -39,8 +39,7 @@ public class FetchUserManyTest {
 			Map res2 = res[0];
 			assertNotNull(res2.get("_id"));
 			assertEquals(res2.get("verified"), false);
-			
-			
+
 			HashMap<String, Object> filterTrue = new HashMap<String, Object>();
 			filter.put("verified", true);
 			res = client.fetchUserMany(filter, requestedFields);

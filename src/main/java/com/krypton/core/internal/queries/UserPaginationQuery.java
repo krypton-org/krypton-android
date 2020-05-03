@@ -2,12 +2,12 @@ package com.krypton.core.internal.queries;
 
 import java.util.HashMap;
 
-public class UserPaginationQuery extends QueryWithRequestedFields{
+public class UserPaginationQuery extends QueryWithRequestedFields {
 	public UserPaginationQuery(HashMap<String, Object> variables, String[] requestedFields) {
 		super(variables, requestedFields);
 		this.getQuery();
 	}
-	
+
 	public void getQuery() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("query userPagination($filter: FilterFindManyUserPublicInfoInput!, $page: Int!, $perPage: Int!) {");
@@ -15,15 +15,15 @@ public class UserPaginationQuery extends QueryWithRequestedFields{
 		sb.append("...requestedFields");
 		sb.append("}}");
 		this.query = sb.toString();
-		
+
 	}
-	
+
 	public String getRequestedFieldsFragment() {
-		String requestedFieldsstr= String.join(" ", this.requestedFields);
+		String requestedFieldsstr = String.join(" ", this.requestedFields);
 		StringBuilder sb = new StringBuilder();
 		sb.append("fragment requestedFields on UserPublicInfoPagination {");
 		sb.append("items{");
-		sb.append(requestedFieldsstr+"}");
+		sb.append(requestedFieldsstr + "}");
 		sb.append("pageInfo{");
 		sb.append("currentPage\n");
 		sb.append("perPage\n");
@@ -33,6 +33,6 @@ public class UserPaginationQuery extends QueryWithRequestedFields{
 		sb.append("hasPreviousPage");
 		sb.append("}}");
 		return sb.toString();
-		
+
 	}
 }

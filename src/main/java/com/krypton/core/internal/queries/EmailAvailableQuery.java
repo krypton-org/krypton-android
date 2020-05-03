@@ -7,11 +7,10 @@ public class EmailAvailableQuery extends Query {
 		super(variables);
 		this.getQuery();
 	}
-	public void getQuery() {	
+
+	public void getQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("query emailAvailable($email: String!) {")
-		  .append("emailAvailable(email: $email)")
-		  .append("}");
+		sb.append("query emailAvailable($email: String!) {").append("emailAvailable(email: $email)").append("}");
 		this.query = sb.toString();
 	}
 }

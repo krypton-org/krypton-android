@@ -2,12 +2,12 @@ package com.krypton.core.internal.queries;
 
 import java.util.HashMap;
 
-public class UserManyQuery extends QueryWithRequestedFields{
+public class UserManyQuery extends QueryWithRequestedFields {
 	public UserManyQuery(HashMap<String, Object> variables, String[] requestedFields) {
 		super(variables, requestedFields);
 		this.getQuery();
 	}
-	
+
 	public void getQuery() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("query userMany($filter: FilterFindManyUserPublicInfoInput!, $limit: Int) {");
@@ -15,7 +15,7 @@ public class UserManyQuery extends QueryWithRequestedFields{
 		sb.append("...requestedFields");
 		sb.append("}}");
 		this.query = sb.toString();
-		
+
 	}
 
 }

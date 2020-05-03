@@ -4,12 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class FetchPublicKeyTest {
+public class FetchPublicKey {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
 
-
 	@Test
-	public void testSendEmailVerification() {
+	public void testFetchPublicKey() {
 		try {
 			String res = client.publicKey();
 			assertTrue(res instanceof String);
