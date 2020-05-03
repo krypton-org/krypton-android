@@ -19,8 +19,7 @@ public class FetchUserManyTest {
 	public static void setUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				boolean isRegistered = client.register("fetchusermany" + String.valueOf(i) + "@example.com", password);
-				assertTrue(isRegistered);
+				client.register("fetchusermany" + String.valueOf(i) + "@example.com", password);
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -28,22 +27,19 @@ public class FetchUserManyTest {
 	}
 
 	@Test
-	public void testFetchManyUsers() {
-		try {
-			HashMap<String, Object> filter = new HashMap<String, Object>();
-			filter.put("verified", false);
-			String[] requestedFields = { "_id", "verified" };
-			Map<?,?>[] res = client.fetchUserMany(filter, requestedFields, 4);
-			assertEquals(res.length, 4);
-			Map<?,?> res2 = res[0];
-			assertNotNull(res2.get("_id"));
-			assertEquals(res2.get("verified"), false);
-			filter.put("verified", true);
-			res = client.fetchUserMany(filter, requestedFields);
-			assertEquals(res.length, 0);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public void testFetchManyUsers() throws Exception {
+		HashMap<String, Object> filter = new HashMap<String, Object>();
+		filter.put("verified", false);
+		String[] requestedFields = { "_id", "verified" };
+		Map<?, ?>[] res = client.fetchUserMany(filter, requestedFields, 4);
+		assertEquals(res.length, 4);
+		Map<?, ?> res2 = res[0];
+		assertNotNull(res2.get("_id"));
+		assertEquals(res2.get("verified"), false);
+		filter.put("verified", true);
+		res = client.fetchUserMany(filter, requestedFields);
+		assertEquals(res.length, 0);
+
 	}
 
 	@AfterAll

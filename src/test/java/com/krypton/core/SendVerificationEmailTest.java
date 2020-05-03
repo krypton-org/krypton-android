@@ -22,13 +22,10 @@ public class SendVerificationEmailTest {
 	}
 
 	@Test
-	public void testSendEmailVerification() {
-		try {
-			client.login(email, password);
-			assertTrue(client.sendVerificationEmail());
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public void testSendEmailVerification() throws Exception {
+		client.login(email, password);
+		assertTrue(client.sendVerificationEmail());
+
 	}
 
 	@AfterAll

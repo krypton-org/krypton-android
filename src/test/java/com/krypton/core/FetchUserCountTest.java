@@ -20,8 +20,7 @@ public class FetchUserCountTest {
 	public static void setUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				boolean isRegistered = client.register("fetchusercount" + String.valueOf(i) + "@example.com", password);
-				assertTrue(isRegistered);
+				client.register("fetchusercount" + String.valueOf(i) + "@example.com", password);
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -29,17 +28,14 @@ public class FetchUserCountTest {
 	}
 
 	@Test
-	public void testFetchUserCount() {
-		try {
-			assertTrue(client.fetchUserCount() >= 5);
-			HashMap<String, Object> filter = new HashMap<String, Object>();
-			filter.put("verified", false);
-			assertTrue(client.fetchUserCount(filter) >= 5);
-			filter.put("verified", true);
-			assertTrue(client.fetchUserCount(filter) == 0);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public void testFetchUserCount() throws Exception {
+		assertTrue(client.fetchUserCount() >= 5);
+		HashMap<String, Object> filter = new HashMap<String, Object>();
+		filter.put("verified", false);
+		assertTrue(client.fetchUserCount(filter) >= 5);
+		filter.put("verified", true);
+		assertTrue(client.fetchUserCount(filter) == 0);
+
 	}
 
 	@AfterAll

@@ -14,17 +14,14 @@ public class EmailAvailableTest {
 	static String password = "ex@mplePassword123";
 
 	@Test
-	public void testEmailAvailable() {
-		try {
-			boolean isAvailable = client.isEmailAvailable(email);
-			assertTrue(isAvailable);
-			boolean isRegistered = client.register(email, password);
-			assertTrue(isRegistered);
-			isAvailable = client.isEmailAvailable(email);
-			assertFalse(isAvailable);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public void testEmailAvailable() throws Exception {
+
+		boolean isAvailable = client.isEmailAvailable(email);
+		assertTrue(isAvailable);
+		client.register(email, password);
+		isAvailable = client.isEmailAvailable(email);
+		assertFalse(isAvailable);
+
 	}
 
 	@AfterAll

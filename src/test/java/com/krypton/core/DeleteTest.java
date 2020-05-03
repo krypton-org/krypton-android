@@ -21,15 +21,12 @@ public class DeleteTest {
 	}
 
 	@Test
-	public void testDeleteUser() {
-		try {
-			client.login(email, password);
-			assertTrue(client.isLoggedIn());
-			boolean isDeleted = client.delete(password);
-			assertFalse(client.isLoggedIn());
-			assertTrue(isDeleted);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public void testDeleteUser() throws Exception {
+
+		client.login(email, password);
+		assertTrue(client.isLoggedIn());
+		client.delete(password);
+		assertFalse(client.isLoggedIn());
+
 	}
 }

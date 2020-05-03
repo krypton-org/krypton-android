@@ -1,13 +1,13 @@
-package com.krypton.core.internal.utils;
+package com.krypton.core.internal.data;
 
 import java.util.List;
 import java.util.Map;
 
-public class PublicKeyData implements QueryData {
-	public Map<String, String> data;
+public class RegisterData implements QueryData {
+	public Map<String, Boolean> data;
 	public List<Map<String, String>> errors;
 
-	public Map<String, String> getData() {
+	public Map<String, Boolean> getData() {
 		return this.data;
 	}
 

@@ -28,21 +28,18 @@ public class UpdateTest {
 	}
 
 	@Test
-	public void testUpdate() {
-		try {
-			Map<String, Object> res = client.login(email, password);
-			assertEquals(res.get("email"), email);
-			Date beforeUpdateDate = client.getExpiryDate();
+	public void testUpdate() throws Exception {
 
-			HashMap<String, Object> change = new HashMap<String, Object>();
-			change.put("email", emailUpdate);
-			res = client.update(change);
-			assertEquals(res.get("email"), emailUpdate);
-			assertTrue(beforeUpdateDate.getTime() < client.getExpiryDate().getTime());
+		Map<String, Object> res = client.login(email, password);
+		assertEquals(res.get("email"), email);
+		Date beforeUpdateDate = client.getExpiryDate();
 
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+		HashMap<String, Object> change = new HashMap<String, Object>();
+		change.put("email", emailUpdate);
+		res = client.update(change);
+		assertEquals(res.get("email"), emailUpdate);
+		assertTrue(beforeUpdateDate.getTime() < client.getExpiryDate().getTime());
+
 	}
 
 	@AfterAll

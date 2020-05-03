@@ -22,15 +22,10 @@ public class RecoverPasswordTest {
 	}
 
 	@Test
-	public void testRecoverPassword() {
+	public void testRecoverPassword() throws Exception {
+		boolean recovered = client.recoverPassword(email);
+		assertTrue(recovered);
 
-		try {
-			client.register(email, password);
-			boolean recovered = client.recoverPassword(email);
-			assertTrue(recovered);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
 	}
 
 	@AfterAll

@@ -4,7 +4,6 @@
 package com.krypton.core;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.AfterAll;
 
@@ -14,15 +13,10 @@ public class RegisterTest {
 	static String password = "ex@mplePassword123";
 
 	@Test
-	public void testRegister() {
+	public void testRegister() throws Exception {
 
-		try {
-			boolean isRegistered = client.register(email, password);
-			assertTrue(isRegistered);
-		} catch (Exception e) {
-			System.out.println(e);
-			fail(e);
-		}
+		client.register(email, password);
+
 	}
 
 	@AfterAll

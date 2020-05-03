@@ -1,9 +1,9 @@
-package com.krypton.core.internal.utils;
+package com.krypton.core.internal.data;
 
 import java.util.List;
 import java.util.Map;
 
-public class SendVerificationEmailData implements QueryData {
+public class EmailAvailableData implements QueryData {
 	public Map<String, Boolean> data;
 	public List<Map<String, String>> errors;
 

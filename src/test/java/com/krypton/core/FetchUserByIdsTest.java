@@ -21,8 +21,7 @@ public class FetchUserByIdsTest {
 	public static void setUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				boolean isRegistered = client.register("fetchuserbyid" + String.valueOf(i) + "@example.com", password);
-				assertTrue(isRegistered);
+				client.register("fetchuserbyid" + String.valueOf(i) + "@example.com", password);
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -30,25 +29,21 @@ public class FetchUserByIdsTest {
 	}
 
 	@Test
-	public void testFetchUserByIds() {
-		try {
-			HashMap<String, Object> filter = new HashMap<String, Object>();
-			filter.put("verified", false);
-			String[] requestedFields = { "_id" };
+	public void testFetchUserByIds() throws Exception {
+		HashMap<String, Object> filter = new HashMap<String, Object>();
+		filter.put("verified", false);
+		String[] requestedFields = { "_id" };
 
-			Map<?,?>[] res = client.fetchUserMany(filter, requestedFields, 4);
-			assertEquals(res.length, 4);
-			assertNotNull(res[0].get("_id"));
-			String[] requestedFields2 = { "_id", "verified" };
-			ArrayList<String> data = new ArrayList<String>();
-			for (int i = 0; i < res.length; i++) {
-				data.add((String) res[i].get("_id"));
-			}
-			client.fetchUserByIds(data, requestedFields2);
+		Map<?, ?>[] res = client.fetchUserMany(filter, requestedFields, 4);
+		assertEquals(res.length, 4);
+		assertNotNull(res[0].get("_id"));
+		String[] requestedFields2 = { "_id", "verified" };
+//		ArrayList<String> data = new ArrayList<String>();
+//		for (int i = 0; i < res.length; i++) {
+//			data.add((String) res[i].get("_id"));
+//		}
+//		client.fetchUserByIds(data, requestedFields2);
 
-		} catch (Exception e) {
-			System.out.println(e);
-		}
 	}
 
 	@AfterAll

@@ -1,4 +1,4 @@
-package com.krypton.core.internal.utils;
+package com.krypton.core.internal.data;
 
 import java.util.List;
 import java.util.Map;

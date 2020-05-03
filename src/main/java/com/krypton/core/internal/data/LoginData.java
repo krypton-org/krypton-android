@@ -1,9 +1,9 @@
-package com.krypton.core.internal.utils;
+package com.krypton.core.internal.data;
 
 import java.util.List;
 import java.util.Map;
 
-public class RefreshData implements AuthData, QueryData {
+public class LoginData implements AuthData, QueryData {
 	public Map<String, Map<String, Object>> data;
 	public List<Map<String, String>> errors;
 
@@ -19,12 +19,12 @@ public class RefreshData implements AuthData, QueryData {
 
 	@Override
 	public String getToken() {
-		return (String) data.get("refreshToken").get("token");
+		return (String) data.get("login").get("token");
 	}
 
 	@Override
 	public String getExpiryDate() {
-		return (String) data.get("refreshToken").get("expiryDate");
+		return (String) data.get("login").get("expiryDate");
 	}
 
 }

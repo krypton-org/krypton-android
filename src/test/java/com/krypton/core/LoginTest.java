@@ -27,17 +27,15 @@ public class LoginTest {
 	}
 
 	@Test
-	public void testLogin() {
-		try {
-			assertFalse(client.isLoggedIn());
-			Map<String, Object> res = client.login(email, password);
-			assertEquals(res.get("email"), email);
-			assertNotNull(res.get("_id"));
-			assertFalse((boolean) res.get("verified"));
-			assertTrue(client.isLoggedIn());
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public void testLogin() throws Exception {
+
+		assertFalse(client.isLoggedIn());
+		Map<String, Object> res = client.login(email, password);
+		assertEquals(res.get("email"), email);
+		assertNotNull(res.get("_id"));
+		assertFalse((boolean) res.get("verified"));
+		assertTrue(client.isLoggedIn());
+
 	}
 
 	@AfterAll

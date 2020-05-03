@@ -18,12 +18,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import com.google.gson.Gson;
+import com.krypton.core.internal.data.AuthData;
+import com.krypton.core.internal.data.DeleteData;
+import com.krypton.core.internal.data.EmailAvailableData;
+import com.krypton.core.internal.data.GenericData;
+import com.krypton.core.internal.data.LoginData;
+import com.krypton.core.internal.data.PublicKeyData;
+import com.krypton.core.internal.data.QueryData;
+import com.krypton.core.internal.data.RefreshData;
+import com.krypton.core.internal.data.RegisterData;
+import com.krypton.core.internal.data.SendPasswordRecoveryData;
+import com.krypton.core.internal.data.SendVerificationEmailData;
+import com.krypton.core.internal.data.UpdateData;
+import com.krypton.core.internal.data.UserCountData;
+import com.krypton.core.internal.data.UserManyData;
+import com.krypton.core.internal.data.UserOneData;
+import com.krypton.core.internal.data.UserPaginationData;
+import com.krypton.core.internal.data.UserPaginationData.Pagination;
 import com.krypton.core.internal.exceptions.AlreadyLoggedInException;
 import com.krypton.core.internal.exceptions.EmailAlreadyConfirmedException;
 import com.krypton.core.internal.exceptions.EmailAlreadyExistsException;
@@ -51,22 +64,6 @@ import com.krypton.core.internal.queries.UserCountQuery;
 import com.krypton.core.internal.queries.UserManyQuery;
 import com.krypton.core.internal.queries.UserOneQuery;
 import com.krypton.core.internal.queries.UserPaginationQuery;
-import com.krypton.core.internal.utils.AuthData;
-import com.krypton.core.internal.utils.DeleteData;
-import com.krypton.core.internal.utils.EmailAvailableData;
-import com.krypton.core.internal.utils.LoginData;
-import com.krypton.core.internal.utils.PublicKeyData;
-import com.krypton.core.internal.utils.QueryData;
-import com.krypton.core.internal.utils.RefreshData;
-import com.krypton.core.internal.utils.RegisterData;
-import com.krypton.core.internal.utils.SendPasswordRecoveryData;
-import com.krypton.core.internal.utils.SendVerificationEmailData;
-import com.krypton.core.internal.utils.StringData;
-import com.krypton.core.internal.utils.UpdateData;
-import com.krypton.core.internal.utils.UserCountData;
-import com.krypton.core.internal.utils.UserManyData;
-import com.krypton.core.internal.utils.UserOneData;
-import com.krypton.core.internal.utils.UserPaginationData;
 
 public class KryptonClient {
 	private String endpoint;
@@ -110,7 +107,7 @@ public class KryptonClient {
 		return "Bearer " + this.getToken();
 	}
 
-	public Map<String, ?> query(Query q, boolean isAuthTokenRequired) throws Exception {
+	public QueryData query(Query q, boolean isAuthTokenRequired) throws Exception {
 		return query(q, isAuthTokenRequired, false);
 	}
 
@@ -126,7 +123,7 @@ public class KryptonClient {
 
 	}
 
-	public Map<String, ?> query(Query q, boolean isAuthTokenRequired, boolean isRefreshed) throws Exception {
+	public QueryData query(Query q, boolean isAuthTokenRequired, boolean isRefreshed) throws Exception {
 		URL url = new URL(endpoint);
 		HttpURLConnection req = (HttpURLConnection) url.openConnection();
 		req.setRequestMethod("POST");
@@ -172,7 +169,7 @@ public class KryptonClient {
 			this.decodeToken(token);
 		}
 		req.disconnect();
-		return res.getData();
+		return res;
 	}
 
 	private QueryData convertData(Query q, StringBuilder response) {
@@ -217,37 +214,37 @@ public class KryptonClient {
 			res = new Gson().fromJson(response.toString(), UserPaginationData.class);
 
 		} else {
-			res = new Gson().fromJson(response.toString(), StringData.class);
+			res = new Gson().fromJson(response.toString(), GenericData.class);
 		}
 		return res;
 	}
 
 	private KryptonException errorStringToException(String errorType, String message) {
 		switch (errorType) {
-			case "AlreadyLoggedInError":
-				return new AlreadyLoggedInException(message);
-			case "EmailAlreadyConfirmedError":
-				return new EmailAlreadyConfirmedException(message);
-			case "EmailAlreadyExistsError":
-				return new EmailAlreadyExistsException(message);
-			case "EmailNotSentError":
-				return new EmailNotSentException(message);
-			case "GraphQLError":
-				return new GraphQLException(message);
-			case "UpdatePasswordTooLateError":
-				return new UpdatePasswordTooLateException(message);
-			case "UsernameAlreadyExistsError":
-				return new UsernameAlreadyExistsException(message);
-			case "UnauthorizedError":
-				return new UnauthorizedException(message);
-			case "UserNotFoundError":
-				return new UserNotFoundException(message);
-			case "UserValidationError":
-				return new UserValidationException(message);
-			case "WrongPasswordError":
-				return new WrongPasswordException(message);
-			default:
-				return new KryptonException(message);
+		case "AlreadyLoggedInError":
+			return new AlreadyLoggedInException(message);
+		case "EmailAlreadyConfirmedError":
+			return new EmailAlreadyConfirmedException(message);
+		case "EmailAlreadyExistsError":
+			return new EmailAlreadyExistsException(message);
+		case "EmailNotSentError":
+			return new EmailNotSentException(message);
+		case "GraphQLError":
+			return new GraphQLException(message);
+		case "UpdatePasswordTooLateError":
+			return new UpdatePasswordTooLateException(message);
+		case "UsernameAlreadyExistsError":
+			return new UsernameAlreadyExistsException(message);
+		case "UnauthorizedError":
+			return new UnauthorizedException(message);
+		case "UserNotFoundError":
+			return new UserNotFoundException(message);
+		case "UserValidationError":
+			return new UserValidationException(message);
+		case "WrongPasswordError":
+			return new WrongPasswordException(message);
+		default:
+			return new KryptonException(message);
 		}
 	}
 
@@ -289,7 +286,7 @@ public class KryptonClient {
 		}
 	}
 
-	public boolean register(String email, String password, Map<String, Object> otherFields) throws Exception {
+	public void register(String email, String password, Map<String, Object> otherFields) throws Exception {
 		if (otherFields == null) {
 			otherFields = Collections.emptyMap();
 		}
@@ -298,13 +295,12 @@ public class KryptonClient {
 		fields.put("email", email);
 		fields.put("password", password);
 		parameters.put("fields", fields);
-		Map<String, ?> res = this.query(new RegisterQuery(parameters), false, false);
-		return (boolean) res.get("register");
+		this.query(new RegisterQuery(parameters), false, false);
 	}
 
-	public boolean register(String email, String password) throws Exception {
+	public void register(String email, String password) throws Exception {
 		Map<String, Object> empty = Collections.emptyMap();
-		return this.register(email, password, empty);
+		this.register(email, password, empty);
 	}
 
 	public Map<String, Object> login(String email, String password) throws Exception {
@@ -325,26 +321,27 @@ public class KryptonClient {
 	public boolean delete(String password) throws Exception {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("password", password);
-		Map<String, ?> res = this.query(new DeleteQuery(parameters), true, false);
+		DeleteData res = (DeleteData) this.query(new DeleteQuery(parameters), true, false);
 		this.token = "";
 		this.user = Collections.emptyMap();
 		this.expiryDate = new Date(0);
 		this.cookieManager = new CookieManager();
-		return (boolean) res.get("deleteMe");
+		return (boolean) res.getData().get("deleteMe");
 	}
 
 	public boolean recoverPassword(String email) throws Exception {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("email", email);
-		Map<String, ?> res = this.query(new SendPasswordRecoveryQuery(parameters), true, false);
-		return (boolean) res.get("sendPasswordRecoveryEmail");
+		SendPasswordRecoveryData res = (SendPasswordRecoveryData) this.query(new SendPasswordRecoveryQuery(parameters),
+				false, false);
+		return res.getData().get("sendPasswordRecoveryEmail");
 	}
 
 	public boolean isEmailAvailable(String email) throws Exception {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("email", email);
-		Map<String, ?> res = this.query(new EmailAvailableQuery(parameters), false, false);
-		return (boolean) res.get("emailAvailable");
+		EmailAvailableData res = (EmailAvailableData) this.query(new EmailAvailableQuery(parameters), false, false);
+		return res.getData().get("emailAvailable");
 	}
 
 	public boolean changePassword(String actualPassword, String newPassword) throws Exception {
@@ -356,15 +353,16 @@ public class KryptonClient {
 	}
 
 	public boolean sendVerificationEmail() throws Exception {
-		Map<String, ?> res = this.query(new SendVerificationEmailQuery(), true, false);
-		return (boolean) res.get("sendVerificationEmail");
+		SendVerificationEmailData res = (SendVerificationEmailData) this.query(new SendVerificationEmailQuery(), true,
+				false);
+		return res.getData().get("sendVerificationEmail");
 	}
 
 	public Map<String, Object> fetchUserOne(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
-		Map<String, ?> res = this.query(new UserOneQuery(parameter, requestedFields), false, false);
-		return (Map<String, Object>) res.get("userOne");
+		UserOneData res = (UserOneData) this.query(new UserOneQuery(parameter, requestedFields), false, false);
+		return res.getData().get("userOne");
 	}
 
 	public void fetchUserByIds(ArrayList<String> data, String[] requestedFields) throws Exception {
@@ -377,40 +375,43 @@ public class KryptonClient {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
 		parameter.put("limit", limit);
-		Map<String, ?> res = this.query(new UserManyQuery(parameter, requestedFields), false, false);
-		return (Map[]) res.get("userMany");
+		UserManyData res = (UserManyData) this.query(new UserManyQuery(parameter, requestedFields), false, false);
+		return (Map[]) res.getData().get("userMany");
 	}
 
 	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
-		Map<String, ?> res = this.query(new UserManyQuery(parameter, requestedFields), false, false);
-		return (Map[]) res.get("userMany");
+		UserManyData res = (UserManyData) this.query(new UserManyQuery(parameter, requestedFields), false, false);
+		return res.getData().get("userMany");
 	}
 
 	public int fetchUserCount(HashMap<String, Object> filter) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
-		return (int) this.query(new UserCountQuery(parameter), false, false).get("userCount");
+		UserCountData res = (UserCountData) this.query(new UserCountQuery(parameter), false, false);
+		return res.getData().get("userCount");
 	}
 
 	public int fetchUserCount() throws Exception {
-		return (int) this.query(new UserCountQuery(), false, false).get("userCount");
+		UserCountData res = (UserCountData) this.query(new UserCountQuery(), false, false);
+		return res.getData().get("userCount");
 	}
 
-	public Map<String, Object> fetchUserWithPagination(HashMap<String, Object> filter, String[] requestedFields,
-			int page, int perPage) throws Exception {
+	public Pagination fetchUserWithPagination(HashMap<String, Object> filter, String[] requestedFields, int page,
+			int perPage) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
 		parameter.put("page", page);
 		parameter.put("perPage", perPage);
-		return (Map<String, Object>) this.query(new UserPaginationQuery(parameter, requestedFields), false, false)
-				.get("userPagination");
+		UserPaginationData res = (UserPaginationData) this.query(new UserPaginationQuery(parameter, requestedFields),
+				false, false);
+		return res.getData().get("userPagination");
 	}
 
 	public String publicKey() throws Exception {
-		Map<String, ?> res = this.query(new PublicKeyQuery(), false, false);
-		return (String) res.get("publicKey");
+		PublicKeyData res = (PublicKeyData) this.query(new PublicKeyQuery(), false, false);
+		return res.getData().get("publicKey");
 	}
 
 	private void decodeToken(String token) {

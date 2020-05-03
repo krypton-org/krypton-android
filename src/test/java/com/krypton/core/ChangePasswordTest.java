@@ -24,15 +24,12 @@ public class ChangePasswordTest {
 	}
 
 	@Test
-	public void testChangePassword() {
+	public void testChangePassword() throws Exception {
 
-		try {
-			client.login(email, password);
-			assertTrue(client.isLoggedIn());
-			assertTrue(client.changePassword(password, newPassword));
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+		client.login(email, password);
+		assertTrue(client.isLoggedIn());
+		assertTrue(client.changePassword(password, newPassword));
+
 	}
 
 	@AfterAll

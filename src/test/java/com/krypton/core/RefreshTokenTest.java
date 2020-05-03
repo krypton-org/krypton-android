@@ -26,19 +26,15 @@ public class RefreshTokenTest {
 	}
 
 	@Test
-	public void testRefreshToken() {
+	public void testRefreshToken() throws Exception {
 
-		try {
-			Map<String, Object> res = client.login(email, password);
-			assertEquals(res.get("email"), email);
-			Date beforeUpdateDate = client.getExpiryDate();
+		Map<String, Object> res = client.login(email, password);
+		assertEquals(res.get("email"), email);
+		Date beforeUpdateDate = client.getExpiryDate();
 
-			client.refreshToken();
-			assertTrue(beforeUpdateDate.getTime() < client.getExpiryDate().getTime());
+		client.refreshToken();
+		assertTrue(beforeUpdateDate.getTime() < client.getExpiryDate().getTime());
 
-		} catch (Exception e) {
-			System.out.println(e);
-		}
 	}
 
 	@AfterAll

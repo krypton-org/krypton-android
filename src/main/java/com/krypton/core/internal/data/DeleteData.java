@@ -1,19 +1,18 @@
-package com.krypton.core.internal.utils;
+package com.krypton.core.internal.data;
 
 import java.util.List;
 import java.util.Map;
 
-public class UserCountData implements QueryData {
-	public Map<String, Integer> data;
+public class DeleteData implements QueryData {
+	public Map<String, Boolean> data;
 	public List<Map<String, String>> errors;
 
-	@Override
-	public Map<String, Integer> getData() {
+	public Map<String, Boolean> getData() {
 		return this.data;
 	}
 
-	@Override
 	public List<Map<String, String>> getErrors() {
 		return this.errors;
 	}
+
 }

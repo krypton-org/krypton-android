@@ -1,4 +1,4 @@
-package com.krypton.core.internal.utils;
+package com.krypton.core.internal.data;
 
 public interface AuthData {
 	public String getToken();
