@@ -36,11 +36,11 @@ public class FetchUserPaginationTest {
 			filter.put("verified", false);
 			String[] requestedFields = { "_id", "verified" };
 			Map<String, Object> res = client.fetchUserWithPagination(filter, requestedFields, 1, 5);
-			ArrayList<Map> items = (ArrayList<Map>) res.get("items");
+			ArrayList<Map<?,?>> items = (ArrayList<Map<?,?>>) res.get("items");
 			assertTrue(items.size() >= 5);
 			assertNotNull(items.get(0).get("_id"));
 			assertEquals(items.get(0).get("verified"), false);
-			Map pageInfo = (Map) res.get("pageInfo");
+			Map<?,?> pageInfo = (Map<?,?>) res.get("pageInfo");
 			assertEquals(pageInfo.get("currentPage"), 1.0);
 			assertEquals(pageInfo.get("perPage"), 5.0);
 			assertTrue((double) pageInfo.get("pageCount") >= 4);
@@ -50,7 +50,7 @@ public class FetchUserPaginationTest {
 
 			filter.put("verified", true);
 			res = client.fetchUserWithPagination(filter, requestedFields, 1, 5);
-			items = (ArrayList<Map>) res.get("items");
+			items = (ArrayList<Map<?,?>>) res.get("items");
 			assertTrue(items.size() == 0);
 			pageInfo = (Map) res.get("pageInfo");
 			assertTrue((double) pageInfo.get("itemCount") == 0);

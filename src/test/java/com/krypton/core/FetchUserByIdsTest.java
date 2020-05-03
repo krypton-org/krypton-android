@@ -36,15 +36,15 @@ public class FetchUserByIdsTest {
 			filter.put("verified", false);
 			String[] requestedFields = { "_id" };
 
-			Map[] res = client.fetchUserMany(filter, requestedFields, 4);
+			Map<?,?>[] res = client.fetchUserMany(filter, requestedFields, 4);
 			assertEquals(res.length, 4);
 			assertNotNull(res[0].get("_id"));
 			String[] requestedFields2 = { "_id", "verified" };
 			ArrayList<String> data = new ArrayList<String>();
-//			for (int i = 0; i < res.length; i++) {
-//				data.add((String) res[i].get("_id"));
-//			}
-//			client.fetchUserByIds(data, requestedFields2);
+			for (int i = 0; i < res.length; i++) {
+				data.add((String) res[i].get("_id"));
+			}
+			client.fetchUserByIds(data, requestedFields2);
 
 		} catch (Exception e) {
 			System.out.println(e);
