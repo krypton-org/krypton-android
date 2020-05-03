@@ -76,12 +76,8 @@ public class KryptonClient {
 	private static final String COOKIES_HEADER = "Set-Cookie";
 	private CookieManager cookieManager;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-<<<<<<< HEAD
-	private ExecutorService executor = Executors.newWorkStealingPool();
-=======
 	private static final int DELTA_TIME = 120000;
 
->>>>>>> 92a7cd648cd6ab84bbf948656efad042d4ad5f8e
 	public KryptonClient(String endpoint) {
 		this.endpoint = endpoint;
 		this.token = "";
@@ -269,12 +265,8 @@ public class KryptonClient {
 		req.setRequestProperty("Cookie", sb.toString());
 	}
 
-	public Future<Void> refreshToken() throws Exception {
-		Callable<Void> callable = () -> {
-			this.query(new RefreshQuery(), false, true);
-			return null;
-        };
-		return executor.submit(callable);
+	public void refreshToken() throws Exception {
+		this.query(new RefreshQuery(), false, true);
 	}
 
 	public boolean isLoggedIn() throws ParseException {
@@ -289,7 +281,7 @@ public class KryptonClient {
 			return true;
 		} else {
 			try {
-				this.refreshToken().get();
+				this.refreshToken();
 			} catch (Exception err) {
 				return false;
 			}
@@ -420,29 +412,6 @@ public class KryptonClient {
 		Map<String, ?> res = this.query(new PublicKeyQuery(), false, false);
 		return (String) res.get("publicKey");
 	}
-<<<<<<< HEAD
-	//
-	// public void fetchUserByIds(String email) throws Exception {
-	// this.query(new UserByIdsQuery(parameters),true,false);
-	// }
-	//
-	// public void fetchUserMany(String email) throws Exception {
-	// this.query(new UserManyQuery(parameters),true,false);
-	// }
-	//
-	// public void fetchUserCount(String email) throws Exception {
-	// this.query(new UserCountQuery(parameters),true,false);
-	// }
-	//
-	// public void fetchUserWithPagination(String email) throws Exception {
-	// this.query(new UserPaginationQuery(parameters),false,false);
-	// }
-	//
-	// public void publicKey() throws Exception {
-	// this.query(new PublicKeyQuery(),true,false);
-	// }
-=======
->>>>>>> 92a7cd648cd6ab84bbf948656efad042d4ad5f8e
 
 	private void decodeToken(String token) {
 		byte[] decodedBytes = Base64.getDecoder().decode(token.split("[.]")[1]);
