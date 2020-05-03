@@ -10,6 +10,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -38,17 +39,23 @@ import com.krypton.core.internal.exceptions.WrongPasswordException;
 import com.krypton.core.internal.queries.DeleteQuery;
 import com.krypton.core.internal.queries.EmailAvailableQuery;
 import com.krypton.core.internal.queries.LoginQuery;
+import com.krypton.core.internal.queries.PublicKeyQuery;
 import com.krypton.core.internal.queries.Query;
 import com.krypton.core.internal.queries.RefreshQuery;
 import com.krypton.core.internal.queries.RegisterQuery;
 import com.krypton.core.internal.queries.SendPasswordRecoveryQuery;
 import com.krypton.core.internal.queries.SendVerificationEmailQuery;
 import com.krypton.core.internal.queries.UpdateQuery;
+import com.krypton.core.internal.queries.UserByIdsQuery;
+import com.krypton.core.internal.queries.UserCountQuery;
+import com.krypton.core.internal.queries.UserManyQuery;
 import com.krypton.core.internal.queries.UserOneQuery;
+import com.krypton.core.internal.queries.UserPaginationQuery;
 import com.krypton.core.internal.utils.AuthData;
 import com.krypton.core.internal.utils.DeleteData;
 import com.krypton.core.internal.utils.EmailAvailableData;
 import com.krypton.core.internal.utils.LoginData;
+import com.krypton.core.internal.utils.PublicKeyData;
 import com.krypton.core.internal.utils.QueryData;
 import com.krypton.core.internal.utils.RefreshData;
 import com.krypton.core.internal.utils.RegisterData;
@@ -56,6 +63,10 @@ import com.krypton.core.internal.utils.SendPasswordRecoveryData;
 import com.krypton.core.internal.utils.SendVerificationEmailData;
 import com.krypton.core.internal.utils.StringData;
 import com.krypton.core.internal.utils.UpdateData;
+import com.krypton.core.internal.utils.UserCountData;
+import com.krypton.core.internal.utils.UserManyData;
+import com.krypton.core.internal.utils.UserOneData;
+import com.krypton.core.internal.utils.UserPaginationData;
 
 public class KryptonClient {
 	private String endpoint;
@@ -65,7 +76,12 @@ public class KryptonClient {
 	private static final String COOKIES_HEADER = "Set-Cookie";
 	private CookieManager cookieManager;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+<<<<<<< HEAD
 	private ExecutorService executor = Executors.newWorkStealingPool();
+=======
+	private static final int DELTA_TIME = 120000;
+
+>>>>>>> 92a7cd648cd6ab84bbf948656efad042d4ad5f8e
 	public KryptonClient(String endpoint) {
 		this.endpoint = endpoint;
 		this.token = "";
@@ -78,7 +94,15 @@ public class KryptonClient {
 		return this.user;
 	}
 
-	public String getToken() {
+	public String getToken() throws Exception {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		SimpleDateFormat localDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		Date currentDate = localDateFormat.parse(simpleDateFormat.format(new Date()));
+		if (this.token != null && this.expiryDate != null
+				&& this.expiryDate.getTime() < currentDate.getTime() + DELTA_TIME) {
+			this.refreshToken();
+		}
 		return this.token;
 	}
 
@@ -86,8 +110,8 @@ public class KryptonClient {
 		return this.expiryDate;
 	}
 
-	public String getAuthorizationHeader() {
-		return "Bearer " + this.token;
+	public String getAuthorizationHeader() throws Exception {
+		return "Bearer " + this.getToken();
 	}
 
 	public Map<String, ?> query(Query q, boolean isAuthTokenRequired) throws Exception {
@@ -180,6 +204,21 @@ public class KryptonClient {
 
 		} else if (q instanceof SendVerificationEmailQuery) {
 			res = new Gson().fromJson(response.toString(), SendVerificationEmailData.class);
+
+		} else if (q instanceof UserOneQuery) {
+			res = new Gson().fromJson(response.toString(), UserOneData.class);
+
+		} else if (q instanceof UserManyQuery) {
+			res = new Gson().fromJson(response.toString(), UserManyData.class);
+
+		} else if (q instanceof PublicKeyQuery) {
+			res = new Gson().fromJson(response.toString(), PublicKeyData.class);
+
+		} else if (q instanceof UserCountQuery) {
+			res = new Gson().fromJson(response.toString(), UserCountData.class);
+
+		} else if (q instanceof UserPaginationQuery) {
+			res = new Gson().fromJson(response.toString(), UserPaginationData.class);
 
 		} else {
 			res = new Gson().fromJson(response.toString(), StringData.class);
@@ -329,9 +368,59 @@ public class KryptonClient {
 		return (boolean) res.get("sendVerificationEmail");
 	}
 
-	public void fetchUserOne(HashMap<String, Object> filter, List<String> requestedFields) throws Exception {
-		this.query(new UserOneQuery(filter, requestedFields), true, false);
+	public Map<String, Object> fetchUserOne(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		Map<String, ?> res = this.query(new UserOneQuery(parameter, requestedFields), false, false);
+		return (Map<String, Object>) res.get("userOne");
 	}
+
+	public void fetchUserByIds(ArrayList<String> data, String[] requestedFields) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("ids", data);
+		this.query(new UserByIdsQuery(parameter, requestedFields), false, false);
+	}
+
+	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields, int limit) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		parameter.put("limit", limit);
+		Map<String, ?> res = this.query(new UserManyQuery(parameter, requestedFields), false, false);
+		return (Map[]) res.get("userMany");
+	}
+
+	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		Map<String, ?> res = this.query(new UserManyQuery(parameter, requestedFields), false, false);
+		return (Map[]) res.get("userMany");
+	}
+
+	public int fetchUserCount(HashMap<String, Object> filter) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		return (int) this.query(new UserCountQuery(parameter), false, false).get("userCount");
+	}
+
+	public int fetchUserCount() throws Exception {
+		return (int) this.query(new UserCountQuery(), false, false).get("userCount");
+	}
+
+	public Map<String, Object> fetchUserWithPagination(HashMap<String, Object> filter, String[] requestedFields,
+			int page, int perPage) throws Exception {
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("filter", filter);
+		parameter.put("page", page);
+		parameter.put("perPage", perPage);
+		return (Map<String, Object>) this.query(new UserPaginationQuery(parameter, requestedFields), false, false)
+				.get("userPagination");
+	}
+
+	public String publicKey() throws Exception {
+		Map<String, ?> res = this.query(new PublicKeyQuery(), false, false);
+		return (String) res.get("publicKey");
+	}
+<<<<<<< HEAD
 	//
 	// public void fetchUserByIds(String email) throws Exception {
 	// this.query(new UserByIdsQuery(parameters),true,false);
@@ -352,6 +441,8 @@ public class KryptonClient {
 	// public void publicKey() throws Exception {
 	// this.query(new PublicKeyQuery(),true,false);
 	// }
+=======
+>>>>>>> 92a7cd648cd6ab84bbf948656efad042d4ad5f8e
 
 	private void decodeToken(String token) {
 		byte[] decodedBytes = Base64.getDecoder().decode(token.split("[.]")[1]);

@@ -1,14 +1,13 @@
 package com.krypton.core.internal.queries;
 
 import java.util.HashMap;
-import java.util.List;
 
-public class UserOneQuery extends QueryWithRequestedFields{
-	public UserOneQuery(HashMap<String, Object> variables, List<String> requestedFields) {
+public class UserOneQuery extends QueryWithRequestedFields {
+	public UserOneQuery(HashMap<String, Object> variables, String[] requestedFields) {
 		super(variables, requestedFields);
 		this.getQuery();
 	}
-	
+
 	public void getQuery() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("query userOne($filter: FilterFindOneUserPublicInfoInput!) {");
@@ -16,8 +15,7 @@ public class UserOneQuery extends QueryWithRequestedFields{
 		sb.append("...requestedFields");
 		sb.append("}}");
 		this.query = sb.toString();
-		
-	}
 
+	}
 
 }

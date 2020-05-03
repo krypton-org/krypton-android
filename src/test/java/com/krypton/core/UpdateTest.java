@@ -16,7 +16,7 @@ public class UpdateTest {
 	static String email = "updatetesddt1@example.com";
 	static String password = "ex@mplePassword123";
 	static String emailUpdate = "updatddde2@example.com";
-	
+
 	@BeforeAll
 	public static void setUp() {
 		try {
@@ -26,17 +26,16 @@ public class UpdateTest {
 			System.out.println(e);
 		}
 	}
-	
+
 	@Test
 	public void testUpdate() {
 		try {
 			Map<String, Object> res = client.login(email, password);
 			assertEquals(res.get("email"), email);
 			Date beforeUpdateDate = client.getExpiryDate();
-			
-			
+
 			HashMap<String, Object> change = new HashMap<String, Object>();
-			change.put("email",emailUpdate);
+			change.put("email", emailUpdate);
 			res = client.update(change);
 			assertEquals(res.get("email"), emailUpdate);
 			assertTrue(beforeUpdateDate.getTime() < client.getExpiryDate().getTime());
@@ -45,7 +44,7 @@ public class UpdateTest {
 			System.out.println(e);
 		}
 	}
-	
+
 	@AfterAll
 	public static void cleanUp() {
 		try {

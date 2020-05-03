@@ -3,6 +3,8 @@ package com.krypton.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,8 +12,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class FetchUserOneTest {
-
+public class FetchUserCountTest {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
 	static String password = "ex@mplePassword123";
 
@@ -19,7 +20,7 @@ public class FetchUserOneTest {
 	public static void setUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				boolean isRegistered = client.register("fetchuser" + String.valueOf(i) + "@example.com", password);
+				boolean isRegistered = client.register("fetchusercount" + String.valueOf(i) + "@example.com", password);
 				assertTrue(isRegistered);
 			} catch (Exception e) {
 				System.out.println(e);
@@ -28,16 +29,14 @@ public class FetchUserOneTest {
 	}
 
 	@Test
-	public void testFetchUser() {
+	public void testFetchUserCount() {
 		try {
+			assertTrue(client.fetchUserCount() >= 5);
 			HashMap<String, Object> filter = new HashMap<String, Object>();
 			filter.put("verified", false);
-			String[] requestedFields = { "_id", "verified" };
-
-			Map<String, Object> res = client.fetchUserOne(filter, requestedFields);
-			assertEquals(res.get("verified"), false);
-			assertNotNull(res.get("_id"));
-
+			assertTrue(client.fetchUserCount(filter) >= 5);
+			filter.put("verified", true);
+			assertTrue(client.fetchUserCount(filter) == 0);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
@@ -47,7 +46,7 @@ public class FetchUserOneTest {
 	public static void cleanUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				client.login("fetchuser" + String.valueOf(i) + "@example.com", password);
+				client.login("fetchusercount" + String.valueOf(i) + "@example.com", password);
 				client.delete(password);
 			} catch (Exception e) {
 				System.out.println(e);
