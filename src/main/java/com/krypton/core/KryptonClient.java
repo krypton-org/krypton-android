@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.krypton.core.internal.data.AuthData;
 import com.krypton.core.internal.data.DeleteData;
 import com.krypton.core.internal.data.EmailAvailableData;
@@ -32,6 +33,7 @@ import com.krypton.core.internal.data.RegisterData;
 import com.krypton.core.internal.data.SendPasswordRecoveryData;
 import com.krypton.core.internal.data.SendVerificationEmailData;
 import com.krypton.core.internal.data.UpdateData;
+import com.krypton.core.internal.data.User;
 import com.krypton.core.internal.data.UserByIdsData;
 import com.krypton.core.internal.data.UserCountData;
 import com.krypton.core.internal.data.UserManyData;
@@ -71,21 +73,21 @@ public class KryptonClient {
 	private Date expiryDate;
 	private String token;
 	private int minTimeToLive;
-	private Map<String, Object> user;
+	private User user;
 	private static final String COOKIES_HEADER = "Set-Cookie";
 	private CookieManager cookieManager;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	private static final int DEFAULT_MIN_TIME_TO_LIVE = 30 * 1000;
 
 	public KryptonClient(String endpoint, int minTimeToLive) {
-		this.minTimeToLive= minTimeToLive;
+		this.minTimeToLive = minTimeToLive;
 		this.endpoint = endpoint;
 		this.token = "";
-		this.user = Collections.emptyMap();
+		this.user = null;
 		this.expiryDate = new Date(0);
 		this.cookieManager = new CookieManager();
 	}
-	
+
 	public KryptonClient(String endpoint) {
 		this(endpoint, DEFAULT_MIN_TIME_TO_LIVE);
 	}
@@ -220,7 +222,7 @@ public class KryptonClient {
 		} else if (q instanceof UserPaginationQuery) {
 			res = new Gson().fromJson(response.toString(), UserPaginationData.class);
 
-		}else if (q instanceof UserByIdsQuery) {
+		} else if (q instanceof UserByIdsQuery) {
 			res = new Gson().fromJson(response.toString(), UserByIdsData.class);
 
 		} else {
@@ -313,7 +315,7 @@ public class KryptonClient {
 		this.register(email, password, empty);
 	}
 
-	public Map<String, Object> login(String email, String password) throws Exception {
+	public User login(String email, String password) throws Exception {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("email", email);
 		parameters.put("password", password);
@@ -321,7 +323,7 @@ public class KryptonClient {
 		return this.user;
 	}
 
-	public Map<String, Object> update(Map<String, Object> fields) throws Exception {
+	public User update(Map<String, Object> fields) throws Exception {
 		HashMap<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("fields", fields);
 		this.query(new UpdateQuery(parameters), true, false);
@@ -333,7 +335,7 @@ public class KryptonClient {
 		parameters.put("password", password);
 		DeleteData res = (DeleteData) this.query(new DeleteQuery(parameters), true, false);
 		this.token = "";
-		this.user = Collections.emptyMap();
+		this.user = null;
 		this.expiryDate = new Date(0);
 		this.cookieManager = new CookieManager();
 		return (boolean) res.getData().get("deleteMe");
@@ -383,15 +385,17 @@ public class KryptonClient {
 		return res.getData().get("userByIds");
 	}
 
-	public List<Map<String, Object>> fetchUserMany(HashMap<String, Object> filter, String[] requestedFields, int limit) throws Exception {
+	public List<Map<String, Object>> fetchUserMany(HashMap<String, Object> filter, String[] requestedFields, int limit)
+			throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
 		parameter.put("limit", limit);
 		UserManyData res = (UserManyData) this.query(new UserManyQuery(parameter, requestedFields), false, false);
-		return  res.getData().get("userMany");
+		return res.getData().get("userMany");
 	}
 
-	public List<Map<String, Object>> fetchUserMany(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
+	public List<Map<String, Object>> fetchUserMany(HashMap<String, Object> filter, String[] requestedFields)
+			throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
 		UserManyData res = (UserManyData) this.query(new UserManyQuery(parameter, requestedFields), false, false);
@@ -429,6 +433,8 @@ public class KryptonClient {
 	private void decodeToken(String token) {
 		byte[] decodedBytes = Base64.getDecoder().decode(token.split("[.]")[1]);
 		String decodedtoken = new String(decodedBytes);
-		user = new Gson().fromJson(decodedtoken, Map.class);
+		TypeToken<Map<String, Object>> map = new TypeToken<Map<String, Object>>() {
+		};
+		this.user = User.convertMapToUser(new Gson().fromJson(decodedtoken, map.getType()));
 	}
 }

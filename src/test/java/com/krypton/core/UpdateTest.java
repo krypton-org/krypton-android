@@ -5,11 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import com.krypton.core.internal.data.User;
 
 public class UpdateTest {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
@@ -30,14 +31,14 @@ public class UpdateTest {
 	@Test
 	public void testUpdate() throws Exception {
 
-		Map<String, Object> res = client.login(email, password);
-		assertEquals(res.get("email"), email);
+		User user = client.login(email, password);
+		assertEquals(user.getEmail(), email);
 		Date beforeUpdateDate = client.getExpiryDate();
 
 		HashMap<String, Object> change = new HashMap<String, Object>();
 		change.put("email", emailUpdate);
-		res = client.update(change);
-		assertEquals(res.get("email"), emailUpdate);
+		user = client.update(change);
+		assertEquals(user.getEmail(), emailUpdate);
 		assertTrue(beforeUpdateDate.getTime() < client.getExpiryDate().getTime());
 
 	}

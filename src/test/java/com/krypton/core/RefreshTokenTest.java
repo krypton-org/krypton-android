@@ -4,11 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
-import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import com.krypton.core.internal.data.User;
 
 public class RefreshTokenTest {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
@@ -28,8 +29,8 @@ public class RefreshTokenTest {
 	@Test
 	public void testRefreshToken() throws Exception {
 
-		Map<String, Object> res = client.login(email, password);
-		assertEquals(res.get("email"), email);
+		User user = client.login(email, password);
+		assertEquals(user.getEmail(), email);
 		Date beforeUpdateDate = client.getExpiryDate();
 
 		client.refreshToken();

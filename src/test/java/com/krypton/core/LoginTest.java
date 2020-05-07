@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import com.krypton.core.internal.data.User;
 
 public class LoginTest {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
@@ -30,10 +30,10 @@ public class LoginTest {
 	public void testLogin() throws Exception {
 
 		assertFalse(client.isLoggedIn());
-		Map<String, Object> res = client.login(email, password);
-		assertEquals(res.get("email"), email);
-		assertNotNull(res.get("_id"));
-		assertFalse((boolean) res.get("verified"));
+		User user = client.login(email, password);
+		assertEquals(user.getEmail(), email);
+		assertNotNull(user.getId());
+		assertFalse((boolean) user.isVerified());
 		assertTrue(client.isLoggedIn());
 
 	}
