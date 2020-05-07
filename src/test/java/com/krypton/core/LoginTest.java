@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class LoginTest {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
 	static String email = "user1@example.com";
-	static String password = "ex@mplePassword123";
+	static String password = "examplee";
 
 	@BeforeAll
 	public static void setUp() {

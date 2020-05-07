@@ -32,6 +32,7 @@ import com.krypton.core.internal.data.RegisterData;
 import com.krypton.core.internal.data.SendPasswordRecoveryData;
 import com.krypton.core.internal.data.SendVerificationEmailData;
 import com.krypton.core.internal.data.UpdateData;
+import com.krypton.core.internal.data.UserByIdsData;
 import com.krypton.core.internal.data.UserCountData;
 import com.krypton.core.internal.data.UserManyData;
 import com.krypton.core.internal.data.UserOneData;
@@ -69,18 +70,24 @@ public class KryptonClient {
 	private String endpoint;
 	private Date expiryDate;
 	private String token;
+	private int minTimeToLive;
 	private Map<String, Object> user;
 	private static final String COOKIES_HEADER = "Set-Cookie";
 	private CookieManager cookieManager;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-	private static final int DELTA_TIME = 120000;
+	private static final int DEFAULT_MIN_TIME_TO_LIVE = 30 * 1000;
 
-	public KryptonClient(String endpoint) {
+	public KryptonClient(String endpoint, int minTimeToLive) {
+		this.minTimeToLive= minTimeToLive;
 		this.endpoint = endpoint;
 		this.token = "";
 		this.user = Collections.emptyMap();
 		this.expiryDate = new Date(0);
 		this.cookieManager = new CookieManager();
+	}
+	
+	public KryptonClient(String endpoint) {
+		this(endpoint, DEFAULT_MIN_TIME_TO_LIVE);
 	}
 
 	public Object getUser() {
@@ -93,7 +100,7 @@ public class KryptonClient {
 		SimpleDateFormat localDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 		Date currentDate = localDateFormat.parse(simpleDateFormat.format(new Date()));
 		if (this.token != null && this.expiryDate != null
-				&& this.expiryDate.getTime() < currentDate.getTime() + DELTA_TIME) {
+				&& this.expiryDate.getTime() < currentDate.getTime() + minTimeToLive) {
 			this.refreshToken();
 		}
 		return this.token;
@@ -212,6 +219,9 @@ public class KryptonClient {
 
 		} else if (q instanceof UserPaginationQuery) {
 			res = new Gson().fromJson(response.toString(), UserPaginationData.class);
+
+		}else if (q instanceof UserByIdsQuery) {
+			res = new Gson().fromJson(response.toString(), UserByIdsData.class);
 
 		} else {
 			res = new Gson().fromJson(response.toString(), GenericData.class);
@@ -365,21 +375,23 @@ public class KryptonClient {
 		return res.getData().get("userOne");
 	}
 
-	public void fetchUserByIds(ArrayList<String> data, String[] requestedFields) throws Exception {
+	public List<Map<String, Object>> fetchUserByIds(ArrayList<String> ids, String[] requestedFields) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("ids", data);
-		this.query(new UserByIdsQuery(parameter, requestedFields), false, false);
+		String[] idArray = ids.toArray(new String[ids.size()]);
+		parameter.put("ids", idArray);
+		UserByIdsData res = (UserByIdsData) this.query(new UserByIdsQuery(parameter, requestedFields), false, false);
+		return res.getData().get("userByIds");
 	}
 
-	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields, int limit) throws Exception {
+	public List<Map<String, Object>> fetchUserMany(HashMap<String, Object> filter, String[] requestedFields, int limit) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
 		parameter.put("limit", limit);
 		UserManyData res = (UserManyData) this.query(new UserManyQuery(parameter, requestedFields), false, false);
-		return (Map[]) res.getData().get("userMany");
+		return  res.getData().get("userMany");
 	}
 
-	public Map[] fetchUserMany(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
+	public List<Map<String, Object>> fetchUserMany(HashMap<String, Object> filter, String[] requestedFields) throws Exception {
 		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("filter", filter);
 		UserManyData res = (UserManyData) this.query(new UserManyQuery(parameter, requestedFields), false, false);

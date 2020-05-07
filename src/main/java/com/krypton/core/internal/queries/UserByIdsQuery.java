@@ -11,7 +11,7 @@ public class UserByIdsQuery extends QueryWithRequestedFields {
 
 	public void getQuery() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("query userByIds($ids: [MongoID]!) {) {");
+		sb.append("query userByIds($ids: [MongoID]!) {");
 		sb.append("userByIds(_ids: $ids){");
 		sb.append("...requestedFields");
 		sb.append("}}");

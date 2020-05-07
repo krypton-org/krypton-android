@@ -2,9 +2,10 @@ package com.krypton.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
@@ -31,14 +32,14 @@ public class FetchUserManyTest {
 		HashMap<String, Object> filter = new HashMap<String, Object>();
 		filter.put("verified", false);
 		String[] requestedFields = { "_id", "verified" };
-		Map<?, ?>[] res = client.fetchUserMany(filter, requestedFields, 4);
-		assertEquals(res.length, 4);
-		Map<?, ?> res2 = res[0];
+		List<Map<String, Object>> res = client.fetchUserMany(filter, requestedFields, 4);
+		assertEquals(res.size(), 4);
+		Map<?, ?> res2 = res.get(0);
 		assertNotNull(res2.get("_id"));
 		assertEquals(res2.get("verified"), false);
 		filter.put("verified", true);
 		res = client.fetchUserMany(filter, requestedFields);
-		assertEquals(res.length, 0);
+		assertEquals(res.size(), 0);
 
 	}
 

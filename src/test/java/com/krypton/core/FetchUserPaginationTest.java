@@ -1,11 +1,10 @@
 package com.krypton.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,22 +36,22 @@ public class FetchUserPaginationTest {
 		filter.put("verified", false);
 		String[] requestedFields = { "_id", "verified" };
 		Pagination res = client.fetchUserWithPagination(filter, requestedFields, 1, 5);
-//		List<Map<String, Object>> items = res.getItems();
-//		assertTrue(items.size() >= 5);
-//		assertNotNull(items.get(0).get("_id"));
-//		assertEquals(items.get(0).get("verified"), false);
-//		assertEquals(res.getCurrentPage(), 1);
-//		assertEquals(res.getPerPage(), 5);
-//		assertTrue( res.getPageCount() >= 4);
-//		assertTrue(res.getItemCount() >= 20);
-//		assertTrue(res.hasNextPage());
-//		assertFalse(res.hasPreviousPage());
+		List<Map<String, Object>> items = res.getItems();
+		assertTrue(items.size() >= 5);
+		assertNotNull(items.get(0).get("_id"));
+		assertEquals(items.get(0).get("verified"), false);
+		assertEquals(res.getPageInfos().getCurrentPage(), 1);
+		assertEquals(res.getPageInfos().getPerPage(), 5);
+		assertTrue( res.getPageInfos().getPageCount() >= 4);
+		assertTrue(res.getPageInfos().getItemCount() >= 20);
+		assertTrue(res.getPageInfos().hasNextPage());
+		assertFalse(res.getPageInfos().hasPreviousPage());
 
 		filter.put("verified", true);
 		res = client.fetchUserWithPagination(filter, requestedFields, 1, 5);
-//		items = res.getItems();
-//		assertTrue(items.size() == 0);
-//		assertTrue(res.getItemCount() == 0);
+		items = res.getItems();
+		assertTrue(items.size() == 0);
+		assertTrue(res.getPageInfos().getItemCount() == 0);
 	}
 
 	@AfterAll
