@@ -4,6 +4,9 @@
     <p align="center">
     <i>Krypton client for Android and the JVM.</i>
     <br/><br/>
+    <a href="https://github.com/krypton-org/krypton-android/actions?query=workflow%3A%22Java+CI+with+Gradle%22">
+      <img src="https://github.com/krypton-org/krypton-android/workflows/Java%20CI%20with%20Gradle/badge.svg">
+    </a>
 </p>
 
 Krypton Android is the core client library used to connect to [Krypton Authentification server](https://github.com/krypton-org/krypton-auth).
