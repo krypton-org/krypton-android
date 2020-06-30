@@ -10,7 +10,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.krypton.core.internal.data.User;
+import com.krypton.core.data.User;
 
 public class UpdateTest {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
@@ -21,7 +21,7 @@ public class UpdateTest {
 	@BeforeAll
 	public static void setUp() {
 		try {
-			client.register(email, password);
+			client.register(email, password).get();
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -31,13 +31,14 @@ public class UpdateTest {
 	@Test
 	public void testUpdate() throws Exception {
 
-		User user = client.login(email, password);
+		User user = client.login(email, password).get();
+		System.out.println(user.getEmail());
 		assertEquals(user.getEmail(), email);
 		Date beforeUpdateDate = client.getExpiryDate();
 
 		HashMap<String, Object> change = new HashMap<String, Object>();
 		change.put("email", emailUpdate);
-		user = client.update(change);
+		user = client.update(change).get();
 		assertEquals(user.getEmail(), emailUpdate);
 		assertTrue(beforeUpdateDate.getTime() < client.getExpiryDate().getTime());
 
@@ -46,14 +47,14 @@ public class UpdateTest {
 	@AfterAll
 	public static void cleanUp() {
 		try {
-			client.login(email, password);
-			client.delete(password);
+			client.login(email, password).get();
+			client.delete(password).get();
 		} catch (Exception e) {
 			;
 		}
 		try {
-			client.login(emailUpdate, password);
-			client.delete(password);
+			client.login(emailUpdate, password).get();
+			client.delete(password).get();
 		} catch (Exception e) {
 			System.out.println(e);
 		}

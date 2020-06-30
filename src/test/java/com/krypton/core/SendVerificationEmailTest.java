@@ -14,7 +14,7 @@ public class SendVerificationEmailTest {
 	@BeforeAll
 	public static void setUp() {
 		try {
-			client.register(email, password);
+			client.register(email, password).get();
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -23,16 +23,16 @@ public class SendVerificationEmailTest {
 
 	@Test
 	public void testSendEmailVerification() throws Exception {
-		client.login(email, password);
-		assertTrue(client.sendVerificationEmail());
+		client.login(email, password).get();
+		assertTrue(client.sendVerificationEmail().get());
 
 	}
 
 	@AfterAll
 	public static void cleanUp() {
 		try {
-			client.login(email, password);
-			client.delete(password);
+			client.login(email, password).get();
+			client.delete(password).get();
 		} catch (Exception e) {
 			System.out.println(e);
 		}

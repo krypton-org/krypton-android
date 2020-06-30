@@ -16,7 +16,7 @@ public class ChangePasswordTest {
 	@BeforeAll
 	public static void setUp() {
 		try {
-			client.register(email, password);
+			client.register(email, password).get();
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -26,23 +26,23 @@ public class ChangePasswordTest {
 	@Test
 	public void testChangePassword() throws Exception {
 
-		client.login(email, password);
-		assertTrue(client.isLoggedIn());
-		assertTrue(client.changePassword(password, newPassword));
+		client.login(email, password).get();
+		assertTrue(client.isLoggedIn().get());
+		assertTrue(client.changePassword(password, newPassword).get());
 
 	}
 
 	@AfterAll
 	public static void cleanUp() {
 		try {
-			client.login(email, password);
-			client.delete(password);
+			client.login(email, password).get();
+			client.delete(password).get();
 		} catch (Exception e) {
 			;
 		}
 		try {
-			client.login(email, newPassword);
-			client.delete(newPassword);
+			client.login(email, newPassword).get();
+			client.delete(newPassword).get();
 		} catch (Exception e) {
 			System.out.println(e);
 		}

@@ -19,7 +19,7 @@ public class FetchUserOneTest {
 	public static void setUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				client.register("fetchuser" + String.valueOf(i) + "@example.com", password);
+				client.register("fetchuser" + String.valueOf(i) + "@example.com", password).get();
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -29,11 +29,11 @@ public class FetchUserOneTest {
 	@Test
 	public void testFetchUser() throws Exception {
 		HashMap<String, Object> filter = new HashMap<String, Object>();
-		filter.put("verified", false);
-		String[] requestedFields = { "_id", "verified" };
+		filter.put("email_verified", false);
+		String[] requestedFields = { "_id", "email_verified" };
 
-		Map<String, Object> res = client.fetchUserOne(filter, requestedFields);
-		assertEquals(res.get("verified"), false);
+		Map<String, Object> res = client.fetchUserOne(filter, requestedFields).get();
+		assertEquals(res.get("email_verified"), false);
 		assertNotNull(res.get("_id"));
 
 	}
@@ -42,8 +42,8 @@ public class FetchUserOneTest {
 	public static void cleanUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				client.login("fetchuser" + String.valueOf(i) + "@example.com", password);
-				client.delete(password);
+				client.login("fetchuser" + String.valueOf(i) + "@example.com", password).get();
+				client.delete(password).get();
 			} catch (Exception e) {
 				System.out.println(e);
 			}

@@ -20,7 +20,7 @@ public class FetchUserManyTest {
 	public static void setUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				client.register("fetchusermany" + String.valueOf(i) + "@example.com", password);
+				client.register("fetchusermany" + String.valueOf(i) + "@example.com", password).get();
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -30,15 +30,15 @@ public class FetchUserManyTest {
 	@Test
 	public void testFetchManyUsers() throws Exception {
 		HashMap<String, Object> filter = new HashMap<String, Object>();
-		filter.put("verified", false);
-		String[] requestedFields = { "_id", "verified" };
-		List<Map<String, Object>> res = client.fetchUserMany(filter, requestedFields, 4);
+		filter.put("email_verified", false);
+		String[] requestedFields = { "_id", "email_verified" };
+		List<Map<String, Object>> res = client.fetchUserMany(filter, requestedFields, 4).get();
 		assertEquals(res.size(), 4);
 		Map<?, ?> res2 = res.get(0);
 		assertNotNull(res2.get("_id"));
-		assertEquals(res2.get("verified"), false);
-		filter.put("verified", true);
-		res = client.fetchUserMany(filter, requestedFields);
+		assertEquals(res2.get("email_verified"), false);
+		filter.put("email_verified", true);
+		res = client.fetchUserMany(filter, requestedFields).get();
 		assertEquals(res.size(), 0);
 
 	}
@@ -47,8 +47,8 @@ public class FetchUserManyTest {
 	public static void cleanUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				client.login("fetchusermany" + String.valueOf(i) + "@example.com", password);
-				client.delete(password);
+				client.login("fetchusermany" + String.valueOf(i) + "@example.com", password).get();
+				client.delete(password).get();
 			} catch (Exception e) {
 				System.out.println(e);
 			}

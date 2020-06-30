@@ -14,7 +14,7 @@ public class RecoverPasswordTest {
 	@BeforeAll
 	public static void setUp() {
 		try {
-			client.register(email, password);
+			client.register(email, password).get();
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -23,7 +23,7 @@ public class RecoverPasswordTest {
 
 	@Test
 	public void testRecoverPassword() throws Exception {
-		boolean recovered = client.recoverPassword(email);
+		boolean recovered = client.recoverPassword(email).get();
 		assertTrue(recovered);
 
 	}
@@ -31,8 +31,8 @@ public class RecoverPasswordTest {
 	@AfterAll
 	public static void cleanUp() {
 		try {
-			client.login(email, password);
-			client.delete(password);
+			client.login(email, password).get();
+			client.delete(password).get();
 		} catch (Exception e) {
 			System.out.println(e);
 		}

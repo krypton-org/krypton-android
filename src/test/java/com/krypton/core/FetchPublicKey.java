@@ -9,7 +9,7 @@ public class FetchPublicKey {
 
 	@Test
 	public void testFetchPublicKey() throws Exception{
-		String res = client.publicKey();
+		String res = client.publicKey().get();
 		assertTrue(res instanceof String);
 		assertTrue(res.contains("BEGIN PUBLIC KEY"));
 

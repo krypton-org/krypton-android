@@ -13,7 +13,7 @@ public class DeleteTest {
 	@BeforeAll
 	public static void setUp() throws Exception {
 		try {
-			client.register(email, password);
+			client.register(email, password).get();
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -23,10 +23,10 @@ public class DeleteTest {
 	@Test
 	public void testDeleteUser() throws Exception {
 
-		client.login(email, password);
-		assertTrue(client.isLoggedIn());
-		client.delete(password);
-		assertFalse(client.isLoggedIn());
+		client.login(email, password).get();
+		assertTrue(client.isLoggedIn().get());
+		client.delete(password).get();
+		assertFalse(client.isLoggedIn().get());
 
 	}
 }

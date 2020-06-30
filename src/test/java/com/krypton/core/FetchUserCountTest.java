@@ -16,7 +16,7 @@ public class FetchUserCountTest {
 	public static void setUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				client.register("fetchusercount" + String.valueOf(i) + "@example.com", password);
+				client.register("fetchusercount" + String.valueOf(i) + "@example.com", password).get();
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -25,12 +25,12 @@ public class FetchUserCountTest {
 
 	@Test
 	public void testFetchUserCount() throws Exception {
-		assertTrue(client.fetchUserCount() >= 5);
+		assertTrue(client.fetchUserCount().get() >= 5);
 		HashMap<String, Object> filter = new HashMap<String, Object>();
-		filter.put("verified", false);
-		assertTrue(client.fetchUserCount(filter) >= 5);
-		filter.put("verified", true);
-		assertTrue(client.fetchUserCount(filter) == 0);
+		filter.put("email_verified", false);
+		assertTrue(client.fetchUserCount(filter).get() >= 5);
+		filter.put("email_verified", true);
+		assertTrue(client.fetchUserCount(filter).get() == 0);
 
 	}
 
@@ -38,8 +38,8 @@ public class FetchUserCountTest {
 	public static void cleanUp() {
 		for (int i = 1; i <= 5; i++) {
 			try {
-				client.login("fetchusercount" + String.valueOf(i) + "@example.com", password);
-				client.delete(password);
+				client.login("fetchusercount" + String.valueOf(i) + "@example.com", password).get();
+				client.delete(password).get();
 			} catch (Exception e) {
 				System.out.println(e);
 			}

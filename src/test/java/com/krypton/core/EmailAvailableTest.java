@@ -16,10 +16,10 @@ public class EmailAvailableTest {
 	@Test
 	public void testEmailAvailable() throws Exception {
 
-		boolean isAvailable = client.isEmailAvailable(email);
+		boolean isAvailable = client.isEmailAvailable(email).get();
 		assertTrue(isAvailable);
-		client.register(email, password);
-		isAvailable = client.isEmailAvailable(email);
+		client.register(email, password).get();
+		isAvailable = client.isEmailAvailable(email).get();
 		assertFalse(isAvailable);
 
 	}
@@ -27,8 +27,8 @@ public class EmailAvailableTest {
 	@AfterAll
 	public static void cleanUp() {
 		try {
-			client.login(email, password);
-			client.delete(password);
+			client.login(email, password).get();
+			client.delete(password).get();
 		} catch (Exception e) {
 			System.out.println(e);
 		}

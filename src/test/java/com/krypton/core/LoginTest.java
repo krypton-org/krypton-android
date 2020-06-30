@@ -9,7 +9,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.krypton.core.internal.data.User;
+import com.krypton.core.data.User;
 
 public class LoginTest {
 	static KryptonClient client = new KryptonClient("https://nusid.net/krypton-auth");
@@ -19,7 +19,7 @@ public class LoginTest {
 	@BeforeAll
 	public static void setUp() {
 		try {
-			client.register(email, password);
+			client.register(email, password).get();
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -29,20 +29,20 @@ public class LoginTest {
 	@Test
 	public void testLogin() throws Exception {
 
-		assertFalse(client.isLoggedIn());
-		User user = client.login(email, password);
+		assertFalse(client.isLoggedIn().get());
+		User user = client.login(email, password).get();
 		assertEquals(user.getEmail(), email);
 		assertNotNull(user.getId());
 		assertFalse((boolean) user.isVerified());
-		assertTrue(client.isLoggedIn());
+		assertTrue(client.isLoggedIn().get());
 
 	}
 
 	@AfterAll
 	public static void cleanUp() {
 		try {
-			client.login(email, password);
-			client.delete(password);
+			client.login(email, password).get();
+			client.delete(password).get();
 		} catch (Exception e) {
 			System.out.println(e);
 		}
